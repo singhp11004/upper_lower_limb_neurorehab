@@ -1,0 +1,138 @@
+[
+  {
+    "id": 1,
+    "title": "NeuroFlex: Feasibility of EEG-Based Motor Imagery Control of a Soft Glove for Hand Rehabilitation",
+    "filename": "Paper_01_NeuroFlex_Soft_Glove.pdf",
+    "status": "Failed (Paywall / Subscription required)",
+    "source": "https://www.mdpi.com/1424-8220/25/3/610",
+    "size": "N/A"
+  },
+  {
+    "id": 2,
+    "title": "Development of a Low-Cost EEG-Controlled Hand Exoskeleton 3D Printed on Textiles (HERO)",
+    "filename": "Paper_02_HERO_Hand_Exoskeleton.pdf",
+    "status": "Failed (Paywall / Subscription required)",
+    "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8267155/",
+    "size": "N/A"
+  },
+  {
+    "id": 3,
+    "title": "Bilateral Mode Exoskeleton for Hand Rehabilitation with Wireless Control Using 3D Printing Technology Based on IMU Sensor",
+    "filename": "Paper_03_Bilateral_Hand_Exoskeleton.pdf",
+    "status": "Failed (Paywall / Subscription required)",
+    "source": "https://www.hardware-x.com/article/S2468-0672(23)00039-1/fulltext",
+    "size": "N/A"
+  },
+  {
+    "id": 4,
+    "title": "Exoskeleton for Upper Limb Rehabilitation (EULR) with 3D Printing Technology Based on Force Sensor",
+    "filename": "Paper_04_Upper_Limb_Exoskeleton_Force_Sensor.pdf",
+    "status": "Failed (Paywall / Subscription required)",
+    "source": "https://www.hardware-x.com/article/S2468-0672(25)00043-4/fulltext",
+    "size": "N/A"
+  },
+  {
+    "id": 5,
+    "title": "Open-Source Concealed EEG Data Collection for Brain-Computer-Interfaces \u2014 Real-World Neural Observation Through OpenBCI Amplifiers with Around-the-Ear cEEGrid Electrodes",
+    "filename": "Paper_05_OpenBCI_cEEGrid_Concealed_EEG.pdf",
+    "status": "Downloaded",
+    "source": "https://arxiv.org/pdf/2102.00414.pdf",
+    "size": "8399.4 KB"
+  },
+  {
+    "id": 6,
+    "title": "A Simplified Design of a cEEGrid Ear-Electrode Adapter for the OpenBCI Biosensing Platform",
+    "filename": "Paper_06_cEEGrid_OpenBCI_Adapter.pdf",
+    "status": "Failed (Paywall / Subscription required)",
+    "source": "https://www.sciencedirect.com/science/article/pii/S246806722200102X",
+    "size": "N/A"
+  },
+  {
+    "id": 7,
+    "title": "Recording the Tactile P300 with the cEEGrid for Potential Use in a Brain-Computer Interface",
+    "filename": "Paper_07_Tactile_P300_cEEGrid.pdf",
+    "status": "Failed (Paywall / Subscription required)",
+    "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11218745/",
+    "size": "N/A"
+  },
+  {
+    "id": 8,
+    "title": "Upper Extremity Training Followed by Lower Extremity Training with a Brain-Computer Interface Rehabilitation System (recoveriX)",
+    "filename": "Paper_08_recoveriX_BCI_Rehabilitation.pdf",
+    "status": "Downloaded",
+    "source": "https://www.frontiersin.org/journals/neuroscience/articles/10.3389/fnins.2024.1346607/pdf",
+    "size": "1220.5 KB"
+  },
+  {
+    "id": 9,
+    "title": "CTNet: A Convolutional Transformer Network for EEG-Based Motor Imagery Classification",
+    "filename": "Paper_09_CTNet_EEG_Motor_Imagery.pdf",
+    "status": "Downloaded",
+    "source": "https://www.nature.com/articles/s41598-024-71118-7.pdf",
+    "size": "2307.3 KB"
+  },
+  {
+    "id": 10,
+    "title": "A Hybrid BCI Based on SSVEP and EOG for Robotic Arm Control",
+    "filename": "Paper_10_Hybrid_SSVEP_EOG_Robotic_Arm.pdf",
+    "status": "Downloaded",
+    "source": "https://www.frontiersin.org/journals/neurorobotics/articles/10.3389/fnbot.2020.583641/pdf",
+    "size": "2724.6 KB"
+  },
+  {
+    "id": 11,
+    "title": "earEOG via Periauricular Electrodes to Facilitate Eye Tracking in a Natural Headphone Form Factor",
+    "filename": "Paper_11_earEOG_Periauricular_Electrodes.pdf",
+    "status": "Downloaded",
+    "source": "https://www.nature.com/articles/s41598-025-16839-z.pdf",
+    "size": "4095.1 KB"
+  },
+  {
+    "id": 12,
+    "title": "Relevance of Hazards in Exoskeleton Applications: A Survey-Based Enquiry",
+    "filename": "Paper_12_Hazards_Exoskeleton_Applications.pdf",
+    "status": "Failed (Paywall / Subscription required)",
+    "source": "https://doi.org/10.1186/s12984-023-01191-y",
+    "size": "N/A"
+  },
+  {
+    "id": 13,
+    "title": "Effects of Robot-Assisted Therapy for Upper Limb Rehabilitation After Stroke: An Umbrella Review of Systematic Reviews",
+    "filename": "Paper_13_Robot_Assisted_Therapy_Stroke.pdf",
+    "status": "Failed (Paywall / Subscription required)",
+    "source": "https://doi.org/10.1161/STROKEAHA.124.048183",
+    "size": "N/A"
+  },
+  {
+    "id": 14,
+    "title": "Subject-Wise Cognitive Load Detection Using Time\u2013Frequency EEG and Bi-LSTM",
+    "filename": "Paper_14_Cognitive_Load_BiLSTM.pdf",
+    "status": "Failed (Paywall / Subscription required)",
+    "source": "https://link.springer.com/article/10.1007/s13369-023-08494-1",
+    "size": "N/A"
+  },
+  {
+    "id": 15,
+    "title": "Hand Rehabilitation Exoskeleton System Based on EEG Spatiotemporal Characteristics",
+    "filename": "Paper_15_Hand_Rehab_EEG_Spatiotemporal.pdf",
+    "status": "Failed (Paywall / Subscription required)",
+    "source": "https://www.sciencedirect.com/science/article/abs/pii/S0957417425001964",
+    "size": "N/A"
+  },
+  {
+    "id": 16,
+    "title": "An Attention-Based Motor Imagery Brain-Computer Interface System for Lower Limb Exoskeletons",
+    "filename": "Paper_16_Attention_MI_BCI_Exoskeleton.pdf",
+    "status": "Failed (Paywall / Subscription required)",
+    "source": "https://pubs.aip.org/aip/rsi/article/95/12/125113/3328210/",
+    "size": "N/A"
+  },
+  {
+    "id": 17,
+    "title": "Digital Twin Rehabilitation System Based on Self-Balancing Lower Limb Exoskeleton",
+    "filename": "Paper_17_Digital_Twin_Rehab_Exoskeleton.pdf",
+    "status": "Failed (Paywall / Subscription required)",
+    "source": "https://doi.org/10.3233/THC-220087",
+    "size": "N/A"
+  }
+]
