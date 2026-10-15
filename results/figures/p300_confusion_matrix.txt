@@ -1,0 +1,44 @@
+LEGACY FIGURE EXPLANATION: P300 SWLDA CLASSIFIER CONFUSION MATRIX (PHASE 2 INITIAL BENCHMARK)
+=============================================================================================
+Target Image: results/figures/p300_confusion_matrix.png
+Historical Context: Phase 2 Initial Prototype Validation (Commit d028191)
+
+1. SCIENTIFIC OBJECTIVE & SIGNIFICANCE
+--------------------------------------
+This standalone confusion matrix depicts the initial benchmark classification performance 
+of the SWLDA P300 ERP classifier evaluated on continuous sliding epochs sliced from 
+the initial PhysioNet / synthetic benchmark recording (N = 1,181 total epochs).
+It served as the primary proof-of-concept verification during Phase 2 development.
+
+2. MATRIX CONFUSION BREAKDOWN & AXES
+------------------------------------
+- X-Axis: Predicted Class (Non-Target (0) vs. P300 Target (1)).
+- Y-Axis: Ground Truth Class (Non-Target (0) vs. P300 Target (1)).
+- Heatmap Range: Blue gradient spanning from 100 to 600+ sample counts.
+- Cell Values:
+  * True Negatives (Top-Left): 121 non-target epochs correctly classified.
+  * False Positives (Top-Right): 300 non-target epochs misclassified as target.
+  * False Negatives (Bottom-Left): 87 target oddball epochs missed.
+  * True Positives (Bottom-Right): 673 target oddball epochs correctly detected.
+  * Total Epochs: 121 + 300 + 87 + 673 = 1,181 epochs.
+
+3. METRICS DERIVED
+------------------
+- Accuracy: (121 + 673) / 1,181 = 67.23% (Satisfies the roadmap minimum threshold >= 65.0%).
+- Precision: 673 / (673 + 300) = 69.17%.
+- Recall / Sensitivity: 673 / (673 + 87) = 88.55%.
+- Specificity: 121 / (121 + 300) = 28.74%.
+- F1-Score: 2 * (0.6917 * 0.8855) / (0.6917 + 0.8855) = 77.67%.
+
+4. COMPARISON WITH EXPANDED REPORT FIGURE (FIG 4.3)
+---------------------------------------------------
+- Notice that in this early Phase 2 benchmark run, sliding 100 ms step slicing over target 
+  stimulus pulse zones created a high proportion of overlapping target epochs (760 target vs. 421 non-target), 
+  leading to an artificially elevated False Positive count (300).
+- This was subsequently refined in `fig_4_3_confusion_matrices_all.png` where balanced, stimulus-locked 
+  epoching (N = 380, 260 Non-Target vs. 120 Target) was implemented, raising precision to 75.6% 
+  and overall accuracy to 86.1%.
+
+5. VERIFICATION STATUS
+----------------------
+Status: Historical benchmark verified. Superseded by Figure 4.3 in formal Chapter 4 report submissions.

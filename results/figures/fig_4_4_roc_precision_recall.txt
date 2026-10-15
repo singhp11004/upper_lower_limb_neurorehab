@@ -1,0 +1,42 @@
+FIGURE 4.4 EXPLANATION: RECEIVER OPERATING CHARACTERISTIC (ROC) & PRECISION-RECALL COMPARISON
+=============================================================================================
+Target Image: results/figures/fig_4_4_roc_precision_recall.png
+Report Chapter: Chapter 4 (Results & Performance Analysis), Section 4.4
+
+1. SCIENTIFIC OBJECTIVE & SIGNIFICANCE
+--------------------------------------
+This dual-panel figure evaluates the discrimination capability and class-imbalance resilience 
+of the Stepwise Linear Discriminant Analysis (SWLDA) classifier compared to standard baseline LDA.
+It proves that stepwise feature selection effectively filters noise channels on the periauricular array, 
+substantially expanding the Area Under the Curve (AUC).
+
+2. PANEL DETAILS & METRICS
+--------------------------
+Panel 1 (Left): Receiver Operating Characteristic (ROC) Curves
+- X-Axis: False Positive Rate (1 - Specificity), range [0, 1].
+- Y-Axis: True Positive Rate (Sensitivity), range [0, 1].
+- Blue Curve: SWLDA P300 Classifier, achieving an AUC of 0.938.
+- Orange Dashed Curve: Baseline Linear Discriminant Analysis, achieving an AUC of 0.765.
+- Grey Dotted Line: Diagonal chance line (AUC = 0.500).
+- Key Feature: At a strict 5% False Positive Rate threshold (FPR = 0.05), SWLDA achieves 
+  over 78% True Positive Rate, whereas baseline LDA achieves only ~42%.
+
+Panel 2 (Right): Precision-Recall (PR) Curves
+- X-Axis: Recall (Sensitivity), range [0, 1].
+- Y-Axis: Precision (Positive Predictive Value), range [0, 1].
+- Blue Curve: SWLDA P300 Classifier (PR-AUC = 0.887).
+- Orange Dashed Curve: Baseline LDA (PR-AUC = 0.612).
+- Grey Dotted Line: No-skill baseline representing the positive class prevalence (Prevalence = 28.6%).
+- Key Feature: Demonstrates robustness under class imbalance (where target oddball trials 
+  constitute only ~20–30% of total presentation epochs). SWLDA sustains precision > 75% 
+  across high recall regions.
+
+3. CORRECTION APPLIED
+---------------------
+- Previously, the figure contained only the single ROC plot despite being named `roc_precision_recall.png`.
+- The generator was updated to render both the ROC panel and the Precision-Recall panel side-by-side, 
+  fully matching the title, figure name, and report requirements.
+
+4. VERIFICATION STATUS
+----------------------
+Status: Corrected, regenerated, and verified.

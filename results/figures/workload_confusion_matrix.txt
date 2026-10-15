@@ -1,0 +1,43 @@
+LEGACY FIGURE EXPLANATION: COGNITIVE WORKLOAD LDA CONFUSION MATRIX (PHASE 2 NOISE MODEL)
+========================================================================================
+Target Image: results/figures/workload_confusion_matrix.png
+Historical Context: Phase 2 Initial Prototype Validation (Commit d028191)
+
+1. SCIENTIFIC OBJECTIVE & SIGNIFICANCE
+--------------------------------------
+This confusion matrix depicts the standalone classification accuracy of the 
+WorkloadLDAClassifier evaluating temporal alpha-band (8–13 Hz) log-bandpower features 
+under the Phase 2 synthetic real-world noise model (N = 100 balanced epochs: 50 Low Workload, 50 High Workload).
+It verifies that changes in user attentional engagement / cognitive fatigue can be 
+discriminated on the periauricular montage to gate exoskeleton command execution.
+
+2. MATRIX CONFUSION BREAKDOWN & AXES
+------------------------------------
+- X-Axis: Predicted Label (Low Workload (0) vs. High Workload (1)).
+- Y-Axis: Ground Truth Label (Low Workload (0) vs. High Workload (1)).
+- Heatmap Range: Blue/Green gradient spanning counts from 0 to 45+.
+- Cell Values:
+  * True Negatives (Top-Left): 47 Low Workload epochs correctly classified.
+  * False Positives (Top-Right): 3 Low Workload epochs misclassified as High Workload.
+  * False Negatives (Bottom-Left): 9 High Workload epochs misclassified as Low Workload.
+  * True Positives (Bottom-Right): 41 High Workload epochs correctly classified.
+  * Total Epochs: 47 + 3 + 9 + 41 = 100 epochs.
+
+3. METRICS DERIVED
+------------------
+- Accuracy: (47 + 41) / 100 = 88.00% (Exceeds the roadmap target >= 80.0%).
+- Precision: 41 / (41 + 3) = 93.18%.
+- Recall / Sensitivity: 41 / (41 + 9) = 82.00%.
+- Specificity: 47 / (47 + 3) = 94.00%.
+- F1-Score: 2 * (0.9318 * 0.82) / (0.9318 + 0.82) = 87.23%.
+
+4. COMPARISON WITH EXPANDED REPORT FIGURE (FIG 4.3)
+---------------------------------------------------
+- This standalone test verified the basic 16-channel alpha feature vector on N = 100 epochs.
+- In the expanded publication version (`fig_4_3_confusion_matrices_all.png`), this evaluation 
+  was scaled to N = 400 epochs with added cross-channel impedance variation, yielding 86.2% accuracy 
+  and presented side-by-side with the P300 confusion matrix for holistic system evaluation.
+
+5. VERIFICATION STATUS
+----------------------
+Status: Historical benchmark verified. Consolidated into Figure 4.3 in formal Chapter 4 report submissions.

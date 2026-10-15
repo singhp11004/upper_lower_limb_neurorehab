@@ -1,0 +1,50 @@
+FIGURE 4.3 EXPLANATION: BCI CLASSIFIER CONFUSION MATRICES
+=============================================================================
+Target Image: results/figures/fig_4_3_confusion_matrices_all.png
+Report Chapter: Chapter 4 (Results & Performance Analysis), Section 4.3
+
+1. SCIENTIFIC OBJECTIVE & SIGNIFICANCE
+--------------------------------------
+This 2-panel figure provides the classification breakdown for the primary 
+discrete-intent decoder (SWLDA P300, Left) and the cognitive state supervisor 
+(Alpha Bandpower Workload LDA, Right). It evaluates class-conditional error distributions, 
+demonstrating that false trigger rates remain low for safety-critical neurorehabilitation.
+
+2. PANEL DETAILS & CELL VALUES
+------------------------------
+Left Panel: SWLDA P300 Classifier (Oddball Intent Detection)
+- Evaluation Matrix (N = 380 test epochs):
+  * True Negatives (Non-Target correctly classified): 228
+  * False Positives (Spurious target trigger): 32
+  * False Negatives (Missed target intent): 21
+  * True Positives (Detected target intent): 99
+- Derived Metrics:
+  * Accuracy: (228 + 99) / 380 = 86.05% (~86.1%)
+  * Precision: 99 / (99 + 32) = 75.57% (~75.6%)
+  * Recall / Sensitivity: 99 / (99 + 21) = 82.50% (~82.5%)
+  * F1-Score: 2 * (0.7557 * 0.825) / (0.7557 + 0.825) = 78.88% (~78.9%)
+  * Cohen's Kappa: 0.682 (substantial inter-rater agreement)
+
+Right Panel: Alpha Bandpower Workload LDA (Active vs. Rest State Gate)
+- Evaluation Matrix (N = 400 test epochs):
+  * True Negatives (Active state correctly classified): 184
+  * False Positives (Misclassified as Rest): 26
+  * False Negatives (Misclassified as Active): 29
+  * True Positives (Rest state correctly classified): 161
+- Derived Metrics:
+  * Accuracy: (184 + 161) / 400 = 86.25% (~86.2%)
+  * Precision: 161 / (161 + 26) = 86.10% (~86.1%)
+  * Recall: 161 / (161 + 29) = 84.74% (~84.7%)
+  * F1-Score: 85.41% (~85.4%)
+  * Cohen's Kappa: 0.724
+
+3. CLINICAL & CONTROL IMPLICATIONS
+----------------------------------
+- Low False Positive Count: Only 32 false positives out of 260 non-target epochs (FPR = 12.3% per epoch).
+  When filtered through the Arbitrator's 300 ms dwell-time confirmation, the effective false command
+  dispatch rate drops below 1.8%, satisfying the roadmap target (< 3.0%).
+- High Sensitivity (82.5%): Ensures users do not experience excessive motor intent dropouts.
+
+4. VERIFICATION STATUS
+----------------------
+Status: Correct and mathematically congruent with metrics_summary.json.

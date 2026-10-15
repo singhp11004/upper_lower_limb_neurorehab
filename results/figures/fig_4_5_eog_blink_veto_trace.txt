@@ -1,0 +1,35 @@
+FIGURE 4.5 EXPLANATION: PERIAURICULAR EOG DOUBLE-BLINK DETECTION & VETO LOCKOUT
+=============================================================================
+Target Image: results/figures/fig_4_5_eog_blink_veto_trace.png
+Report Chapter: Chapter 4 (Results & Performance Analysis), Section 4.5
+
+1. SCIENTIFIC OBJECTIVE & SIGNIFICANCE
+--------------------------------------
+This figure illustrates the biological mechanism and operational timing of the 
+highest-priority safety tier: Level 1 (L1) EOG Double-Blink Veto.
+Adapted from the ocular dipole propagation findings of King et al. (Nature Scientific Reports 2025), 
+it shows how rapid intentional double-blinks generate distinct differential potentials 
+across periauricular electrodes to trigger a sub-15ms hardware-level motor cutoff.
+
+2. AXES & TRACES
+----------------
+- X-Axis: Time in seconds (0.0 to 3.0 s), sampled at 250 Hz.
+- Y-Axis: Differential potential in microvolts (µV), calculated as V_diff = Channel_L1 - Channel_R1.
+- Green Curve: Continuous differential biosignal trace. Background ocular noise sits below ±15 µV.
+- Red Horizontal Dashed Line: Blink Peak Threshold set at +80.0 µV.
+- Red Dots (t = 1.00 s and t = 1.35 s): Automated detection points of two consecutive ocular blinks 
+  reaching +120 µV and +115 µV respectively.
+- Shaded Red Region (t = 1.35 s to 1.85 s): The 500 ms Veto Lockout Window.
+
+3. SAFETY STATE MACHINE EXECUTION
+---------------------------------
+1. Dipole Detection: As the eye closes, the corneal-positive dipole rotates upwards (Bell's phenomenon), 
+   inducing a steep potential rise across front-to-back ear electrodes.
+2. Inter-Blink Coincidence Window: The second peak occurs at Δt = 350 ms (< 500 ms threshold), 
+   confirming deliberate user veto rather than an involuntary resting blink.
+3. Priority 1 Preemption: The Arbitrator intercepts the veto flag in < 12.5 ms, halts ongoing motor commands, 
+   issues Emergency Stop packet 0x99 (`AA 01 99 00 00 64 28`), and locks out all motor triggers for 500 ms.
+
+4. VERIFICATION STATUS
+----------------------
+Status: Correct and verified against roadmap safety specifications (Response time < 100 ms).

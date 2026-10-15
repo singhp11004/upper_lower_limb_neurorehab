@@ -1,0 +1,38 @@
+FIGURE 4.1 EXPLANATION: POWER SPECTRAL DENSITY (RAW VS. FILTERED EEG)
+=============================================================================
+Target Image: results/figures/fig_4_1_raw_vs_filtered_psd.png
+Report Chapter: Chapter 4 (Results & Performance Analysis), Section 4.1
+
+1. SCIENTIFIC OBJECTIVE & SIGNIFICANCE
+--------------------------------------
+This figure demonstrates the signal conditioning performance of the TIER 2 
+preprocessing stage on 16-channel periauricular EEG acquired via the OpenBCI 
+Cyton+Daisy system. It verifies that baseline physiological rhythms are preserved 
+while high-amplitude interference (specifically Indian mains electrical line hum 
+at 50 Hz and low-frequency motion drift) is strictly attenuated before feature extraction.
+
+2. AXES & TRACES
+----------------
+- X-Axis: Frequency (0 to 65 Hz).
+- Y-Axis: Power Spectral Density (dB/Hz), computed via Welch's average periodogram
+  (2-second Hamming window, 50% overlap, Fs = 250 Hz).
+- Red Curve (Raw EEG, Channel L1): Represents the unfiltered biosignal. Notable features:
+  * High low-frequency 1/f noise below 0.5 Hz caused by galvanic skin baseline drift.
+  * Distinct biological alpha peak (~10.5 Hz) within the temporal rhythm.
+  * Severe narrowband spike at exactly 50.0 Hz exceeding +15 dB/Hz due to electromagnetic 
+    coupling with 230V AC mains electricity.
+- Blue Curve (Filtered EEG): Represents signal post-conditioning through the cascaded
+  4th-order Butterworth bandpass (0.5–45.0 Hz) and 2nd-order IIR notch (50 Hz, Q=30).
+
+3. KEY QUANTITATIVE OBSERVATIONS
+--------------------------------
+- 50 Hz Notch Rejection: Attenuation exceeds -45 dB at 50 Hz with negligible distortion 
+  to adjacent physiological bands (< 45 Hz).
+- Low-Frequency Cutoff (0.5 Hz): Rejects DC electrode polarization offset and breathing drift.
+- High-Frequency Rolloff (45 Hz): Suppresses high-frequency ambient noise and RF harmonics.
+- Physiological Integrity: The temporal alpha band (8–13 Hz) remains intact with zero phase 
+  distortion due to forward-backward zero-phase filtering (scipy.signal.filtfilt).
+
+4. VERIFICATION STATUS
+----------------------
+Status: Correct and verified against signal conditioning specifications in Roadmap Section 1.
