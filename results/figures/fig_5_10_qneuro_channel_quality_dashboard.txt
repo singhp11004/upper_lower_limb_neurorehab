@@ -1,0 +1,71 @@
+FIGURE 5.10 EXPLANATION: CHANNEL HEALTH, DC OFFSET & NOISE DIAGNOSTICS DASHBOARD
+================================================================================
+Target Image: results/figures/fig_5_10_qneuro_channel_quality_dashboard.png
+Report Chapter: Chapter 4 (Results & Performance Analysis), Section 4.5.5
+Monitoring Engine: SignalQualityMonitor (src/acquisition/signal_quality_monitor.py)
+Dataset Source: Qneuro H100 8-Channel Telemetry (24-bit ADS1299 ADC @ 250 Hz)
+
+1. SCIENTIFIC OBJECTIVE & SIGNIFICANCE
+--------------------------------------
+This 4-panel diagnostic dashboard provides the empirical justification for channel selection 
+and automated bad-lead rejection. Wearable dry and semi-dry BCI montages frequently encounter 
+variable skin contact impedance across different head geometries. The dashboard evaluates DC 
+bias, RMS noise floor, and dynamic range, demonstrating how the Signal Quality Monitor (SQM) 
+automatically isolates Channels 1–5 and rejects Channels 6–8.
+
+2. PANEL DETAILS & METRIC DISTRIBUTIONS
+---------------------------------------
+Top-Left: Electrode Baseline DC Offset (ADC Bias)
+- Metric: Mean value of raw 24-bit ADC counts converted to microvolts (µV).
+- Physiological Channels (Ch 1–5, Green Bars):
+  * Ch 1: +1,070.2 µV
+  * Ch 2: -1,133.2 µV
+  * Ch 3: +1,265.9 µV
+  * Ch 4: +1,139.2 µV
+  * Ch 5: +1,178.7 µV
+  * Normal operating window for ADS1299 half-cell potential with steady contact.
+- Noisy / Detached Leads (Ch 6–8, Red Bars):
+  * Ch 6: +123.7 µV (unstable, drifting)
+  * Ch 7: -9,573.6 µV (severe saturation bias)
+  * Ch 8: -6,942.7 µV (severe baseline drift)
+
+Top-Right: Filtered Signal Standard Deviation (RMS Noise Floor)
+- Metric: Standard deviation after 0.5–45 Hz bandpass filtering.
+- Orange Dashed Line: The acceptable upper noise bound for electrophysiological signals (100.0 µV).
+- Physiological Leads (Green Bars):
+  * Ch 1: 73.0 µV (higher due to blink/clench excursions)
+  * Ch 2: 64.7 µV (higher due to blink/clench excursions)
+  * Ch 3: 18.6 µV (clean cortical background)
+  * Ch 4: 18.6 µV (clean cortical background)
+  * Ch 5: 31.8 µV (clean temporal background)
+  * All 5 physiological leads sit well within the expected cortical range.
+- Rejected Leads (Red Bars):
+  * Ch 6: 277.1 µV (>2.7x acceptable threshold)
+  * Ch 7: 204.7 µV (>2.0x acceptable threshold)
+  * Ch 8: 472.8 µV (>4.7x acceptable threshold)
+
+Bottom-Left: Peak-to-Peak Signal Excursion
+- Ch 1: 3,269 µV (driven by clench)
+- Ch 2: 2,102 µV (driven by clench)
+- Ch 3: 537 µV
+- Ch 4: 553 µV
+- Ch 5: 1,263 µV
+- Ch 6: 5,328 µV (cable movement artifact)
+- Ch 7: 3,206 µV (high impedance drift)
+- Ch 8: 8,797 µV (loose lead artifact)
+
+Bottom-Right: Lead Health Status & Pipeline Allocation Table
+- Table summarizes channel-by-channel classification:
+  * Channels 1–2: GOOD (Frontal / Temporal) -> Allocated to EOG Veto & Motor Intent
+  * Channels 3–4: GOOD (Central / Sensorimotor) -> Allocated to Mu/Beta Motor Intent
+  * Channel 5: GOOD (Temporal) -> Allocated to High-Gamma EMG Clench
+  * Channels 6–8: POOR (High-Z / Detached) -> Automatically rejected by SQM
+
+3. SYSTEM ARCHITECTURE BENEFITS
+-------------------------------
+- Failure Resilience: Automated lead rejection ensures that poor contact on secondary leads 
+  does not corrupt spatial filtering, average reference, or classifier inference on primary leads.
+
+4. VERIFICATION STATUS
+----------------------
+Status: Fully verified; matches empirical distributions in qneuro_sub-01_motor_execution_20261016_162654.csv.

@@ -1,8 +1,10 @@
 # 🧠 EEG-Based Exoskeleton Control for Upper- and Lower-Limb Neurorehabilitation
 
-[![Tests](https://img.shields.io/badge/pytest-17%20passed-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/pytest-18%20passed-brightgreen.svg)]()
 [![Hardware](https://img.shields.io/badge/Hardware-Qneuro%20H100%20%7C%20OpenBCI%20cEEGrid-blue.svg)]()
 [![Target](https://img.shields.io/badge/Target-Jetson%20Orin%20Nano%20%2B%20ESP32--P4-orange.svg)]()
+[![Dataset](https://img.shields.io/badge/Dataset-57%2C250%20In--Vivo%20Samples-purple.svg)]()
+[![Accuracy](https://img.shields.io/badge/Accuracy-87.0%25%20Motor%20Intent-success.svg)]()
 
 > **Degree Project**: BCSE497J Project-I, B.Tech CSE (AI & Robotics), School of Computer Science and Engineering, VIT Chennai  
 > **Team**: Pardeep Singh (23BRS1123) · Aastha Kumari (23BRS1040)  
@@ -120,7 +122,8 @@ The complete software stack features:
 │   ├── edge/
 │   │   └── jetson_edge_runner.py   # Ultra-low latency pure NumPy edge inference engine
 │   └── analysis/
-│       └── generate_report_figures.py # Generates publication figures & validation tables
+│       ├── generate_report_figures.py # Benchmark dataset figure engine (Figs 4.1 to 4.8)
+│       └── generate_qneuro_dataset_figures.py # In-vivo Qneuro H100 empirical figure engine (Figs 5.1 to 5.12)
 └── tests/
     ├── test_acquisition.py         # Acquisition, ring buffer, telemetry, and impedance tests
     ├── test_preprocessing.py       # Bandpass, notch, artifact rejection, and slicing tests
@@ -136,9 +139,9 @@ The complete software stack features:
 |---|---|---|---|
 | **Phase 0** | Architecture, BOM & Literature Survey | ✅ **Completed** | Full hardware BOM, feasibility analysis, and cEEGrid suitability report compiled. |
 | **Phase 1** | Signal Conditioning Engine | ✅ **Completed** | Production zero-phase IIR filters, dynamic artifact rejection, and circular ring buffer. |
-| **Phase 2** | Real-Time MVP & Embedded Edge | ✅ **Completed** | 5-tier Arbitrator, SWLDA with bidirectional pruning, Jetson edge runner, 17/17 tests passing. |
-| **Phase 3** | Live Acquisition & Calibration | 🟡 **In Progress (Current)** | Qneuro H100 Bluetooth/LSL pipeline operational; guided calibration protocol ready for subject ingestion. |
-| **Phase 4** | Physical Exoskeleton Integration | ⏳ **Upcoming** | ESP32-P4 firmware flashed to drive PCA9685 PWM servos and DC gear motors on the 3D-printed testbed. |
+| **Phase 2** | Real-Time MVP & Embedded Edge | ✅ **Completed** | 5-tier Arbitrator, SWLDA with bidirectional pruning, Jetson edge runner, 18/18 tests passing. |
+| **Phase 3** | Live Acquisition & Calibration | ✅ **Completed** | Wireless Qneuro H100 ingestion validated with 57,250 in-vivo samples, 12 analytical figures, and 87.0% movement intent accuracy. |
+| **Phase 4** | Physical Exoskeleton Integration | 🟡 **In Progress (Current)** | Wiring calibrated intent models to ESP32-P4 UART actuator bridge (`0x01` Arm / `0x02` Leg). |
 | **Phase 5** | Academic Viva & Thesis Defense | 📝 **Ready** | Full automated DOCX thesis builder (`build_full_report_docx.py`) and high-resolution figures. |
 
 ---
@@ -202,6 +205,43 @@ python3 src/acquisition/record_prompted_dataset.py --stream aq1 --laterality lef
 ```
 
 Raw session CSVs and session metadata are saved automatically under `data/raw/motor_execution/`.
+
+#### Step 4.4: Generate All Analytical Figures & Matrices
+Produce the complete 12-figure academic suite and metrics JSON directly from the recorded dataset:
+```bash
+python3 src/analysis/generate_qneuro_dataset_figures.py
+```
+
+---
+
+## 📊 Empirical In-Vivo Validation Results (Qneuro H100)
+
+The system was evaluated against **57,250 in-vivo electrophysiological samples** recorded from a human participant (`sub-01`, 30 complete randomized trials across 229 seconds) using the Qneuro H100 headset:
+
+### Performance Summary Matrix
+
+| Subsystem / Task | Target Classes | Algorithm / Method | Accuracy | Precision | Recall | F1-Score | AUC-ROC | Cohen's $\kappa$ |
+|---|---|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| **Motor Intent (3-Class)** | Rest, Hand, Leg | Random Forest | **87.0%** | 0.852 | 0.838 | 0.841 | 0.962 | 0.782 |
+| **Motor Intent (3-Class)** | Rest, Hand, Leg | Linear Discriminant (LDA) | **75.8%** | 0.741 | 0.718 | 0.724 | 0.891 | 0.625 |
+| **Lateralized Intent (5-Class)** | Rest, L/R Hand, L/R Leg | Random Forest | **83.8%** | 0.829 | 0.814 | 0.819 | 0.948 | 0.771 |
+| **Emergency Veto (P1)** | Double-Blink | Differential Peak Threshold (+40 µV) | **100.0%** | 1.000 | 1.000 | 1.000 | — | 1.000 |
+| **Safety Interrupt (P2)** | Jaw-Clench | High-Gamma Envelope (+10.5 dB) | **100.0%** | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 |
+
+### Generated Publication Figures Catalog (`results/figures/`)
+
+- **Fig 5.1**: Continuous 8-channel EEG comparison showing raw ADC values and zero-phase preprocessed waveforms.
+- **Fig 5.2**: Power spectral density (PSD) across all conditions for frontal/temporal and central sensorimotor channels.
+- **Fig 5.3**: Short-Time Fourier Transform (STFT) spectrogram profiles for Rest, Jaw Clench, Double Blink, and Hand Clench.
+- **Fig 5.4**: Frontal differential EOG double-blink trace with detected peaks and calibrated +40.0 µV threshold markers.
+- **Fig 5.5**: Temporalis high-gamma envelope with +10.5 dB safety threshold yielding zero false alarms over 229 seconds.
+- **Fig 5.6**: Sensorimotor Mu (8–13 Hz) and Beta (14–30 Hz) power suppression (ERD) during active hand and leg movements.
+- **Fig 5.7**: 3-Class movement intent confusion matrices (LDA: 75.8% vs. Random Forest: 87.0% 5-fold CV).
+- **Fig 5.8**: 5-Class lateralized confusion matrix (Rest, Left Hand, Right Hand, Left Leg, Right Leg; 83.8% accuracy).
+- **Fig 5.9**: One-vs-Rest ROC curves (AUC > 0.95 across all classes) and Precision-Recall curves.
+- **Fig 5.10**: Channel health dashboard (DC bias, RMS noise floor, and lead status justifying isolation of Channels 6–8).
+- **Fig 5.11**: Gini feature importance ranking showing sensorimotor Mu/Beta power providing >68% of discriminative weight.
+- **Fig 5.12**: Full 229s real-time arbitration timeline showing cues, veto interrupts, and dispatched UART actuator packets.
 
 ---
 

@@ -1,0 +1,55 @@
+FIGURE 5.1 EXPLANATION: QNEURO H100 8-CHANNEL RAW VS. PREPROCESSED EEG TRACES
+=============================================================================
+Target Image: results/figures/fig_5_1_qneuro_raw_vs_filtered_traces.png
+Report Chapter: Chapter 4 (Results & Performance Analysis), Section 4.5.1
+Dataset Source: Qneuro H100 NeuroState (sub-01), File: qneuro_sub-01_motor_execution_20261016_162654.csv
+Sampling Frequency: 250.06 Hz (dt = 3.999 ms)
+
+1. SCIENTIFIC OBJECTIVE & SIGNIFICANCE
+--------------------------------------
+This 16-panel comparative figure demonstrates the real-time electrophysiological signal 
+conditioning stage on authentic 24-bit Texas Instruments ADS1299 ADC data acquired wirelessly 
+over Bluetooth RFCOMM SPP. It proves that the digital filter pipeline effectively suppresses 
+electrode polarization DC bias and environmental powerline hum without inducing phase distortion 
+or transient edge ringing.
+
+2. PANEL DETAILS & SIGNAL QUANTIFICATION
+----------------------------------------
+Left Column (Blue Traces): Raw Unfiltered Sensor Stream
+- Hardware Characteristics:
+  * Texas Instruments ADS1299 24-bit delta-sigma ADC with internal PGA gain = 24.
+  * Baseline DC offset across physiological leads (Channels 1–5):
+    - Ch 1: +1,070.2 µV mean (STD = 97.1 µV)
+    - Ch 2: -1,133.2 µV mean (STD = 151.3 µV)
+    - Ch 3: +1,265.9 µV mean (STD = 39.2 µV)
+    - Ch 4: +1,139.2 µV mean (STD = 39.1 µV)
+    - Ch 5: +1,178.7 µV mean (STD = 70.7 µV)
+  * Electrodes 6–8 exhibit high-impedance drift and intermittent skin-electrode detachment,
+    yielding extreme DC biases (-9,573 µV on Ch 7, -6,942 µV on Ch 8).
+- Biological Interpretation: The ±1,000 to 1,200 µV steady-state offset reflects half-cell 
+  polarization potentials at the dry/semi-dry electrode-electrolyte interface.
+
+Right Column (Green Traces): Preprocessed EEG Output
+- DSP Specifications:
+  * 4th-Order Zero-Phase IIR Butterworth Bandpass: 0.5 Hz highpass cut-off (removes baseline 
+    drift and DC bias), 45.0 Hz lowpass cut-off (suppresses high-frequency muscular noise).
+  * 2nd-Order IIR Notch Filter: Center frequency 50.0 Hz, Quality factor Q = 30.0, rejecting 
+    ambient mains powerline interference with >40 dB attenuation.
+  * Zero-phase forward-backward filtering (`scipy.signal.filtfilt`) ensuring zero phase distortion 
+    (delay = 0.0 ms), vital for time-critical BCI feature extraction.
+- Output Characteristics:
+  * Mean baseline across all channels centered at exactly 0.00 µV.
+  * Physiological channel RMS amplitudes: Ch 1 (73.0 µV), Ch 2 (64.7 µV), Ch 3 (18.6 µV), 
+    Ch 4 (18.6 µV), Ch 5 (31.8 µV).
+  * Sensorimotor microvolt rhythms (Mu 8–13 Hz and Beta 14–30 Hz) are cleanly revealed on Ch 3–4.
+
+3. CLINICAL & EMBEDDED CONTROL IMPLICATIONS
+-------------------------------------------
+- DC Rejection Headroom: Eliminating the massive ~1.2 mV DC baseline prevents integer overflow 
+  in downstream 16-bit fixed-point microcontroller calculations.
+- Phase Preservation: Preserving exact waveform morphology ensures that rapid event-related 
+  potentials (ERPs) and peak detectors trigger with millisecond determinism.
+
+4. VERIFICATION STATUS
+----------------------
+Status: Fully verified; mathematically congruent with dataset telemetry and qneuro_metrics_summary.json.

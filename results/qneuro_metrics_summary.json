@@ -1,0 +1,43 @@
+{
+  "dataset_source": "Qneuro H100 (sub-01)",
+  "session_timestamp": "20261016_162654",
+  "total_samples": 57250,
+  "duration_seconds": 229.0,
+  "sampling_rate_hz": 250.0,
+  "active_physiological_channels": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "rejected_noisy_channels": [
+    6,
+    7,
+    8
+  ],
+  "calibrated_thresholds": {
+    "jaw_clench_emg_threshold_db": 10.5,
+    "eog_double_blink_threshold_uv": 40.0,
+    "min_blink_interval_sec": 0.25,
+    "max_blink_interval_sec": 0.8
+  },
+  "movement_intent_classification": {
+    "3_class_rest_hand_leg": {
+      "lda_accuracy": 0.758,
+      "random_forest_accuracy": 0.87,
+      "chance_level": 0.333
+    },
+    "5_class_lateralized": {
+      "random_forest_accuracy": 0.838,
+      "cohen_kappa": 0.771,
+      "chance_level": 0.2
+    }
+  },
+  "safety_interruption_performance": {
+    "jaw_clench_detection_rate": 1.0,
+    "jaw_clench_false_alarm_rate": 0.0,
+    "eog_veto_detection_rate": 1.0,
+    "eog_veto_false_alarm_rate": 0.0
+  }
+}

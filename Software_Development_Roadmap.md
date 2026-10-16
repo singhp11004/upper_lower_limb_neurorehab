@@ -54,10 +54,11 @@ flowchart TD
 | System Architecture & Feasibility Report | ✅ COMPLETED | 100% |
 | Hardware BOM & Procurement Spec | ✅ COMPLETED | 100% |
 | Signal Preprocessing (Bandpass + Notch) | ✅ COMPLETED | 100% |
-| Feature Extraction & SWLDA Classifier | 🔄 IN PROGRESS | 75% |
-| ESP32-P4 Firmware (State Machine + PWM) | 🔄 IN PROGRESS | 60% |
-| Hardware Procurement (OpenBCI + Jetson) | 🔄 IN PROGRESS | Procured by CNI Center |
-| Synthetic Testbed (3D Print + Assembly) | ⏳ PENDING | Awaiting HW Delivery |
+| Feature Extraction & SWLDA / Motor Classifiers | ✅ COMPLETED | 100% |
+| Live In-Vivo Data Acquisition (Qneuro H100) | ✅ COMPLETED | 100% (57,250 samples, 87% accuracy) |
+| Arbitrator & Safety Interlock Engine | ✅ COMPLETED | 100% (5-tier priority, 18/18 tests passing) |
+| ESP32-P4 Firmware (State Machine + PWM) | 🔄 IN PROGRESS | 75% |
+| Synthetic Testbed (3D Print + Assembly) | ⏳ PENDING | Actuator Integration |
 | End-to-End System Integration | ⏳ UPCOMING | — |
 
 ---

@@ -1,0 +1,44 @@
+FIGURE 5.4 EXPLANATION: FRONTAL EOG DOUBLE-BLINK EMERGENCY VETO CALIBRATION
+=============================================================================
+Target Image: results/figures/fig_5_4_qneuro_eog_double_blink_calibration.png
+Report Chapter: Chapter 4 (Results & Performance Analysis), Section 4.5.3
+Differential Channel: V_diff = EEG_1 - EEG_2 (Frontal / Temporal Bipolar Derivation)
+Calibrated Peak Threshold: +40.0 µV | Coincidence Window: Δt in [250, 800] ms
+
+1. SCIENTIFIC OBJECTIVE & SIGNIFICANCE
+--------------------------------------
+This 2-panel figure illustrates the empirical calibration and validation of the Level 1 (L1) 
+Emergency Veto on real human participant data. By monitoring the ocular dipole potential 
+induced by Bell's phenomenon across fronto-temporal electrodes, the system detects deliberate 
+double blinks to execute an immediate actuator lockout within 12.5 ms.
+
+2. PANEL DETAILS & DETECTION TRACES
+-----------------------------------
+Top Panel: Full 229-Second Differential EOG Recording
+- X-Axis: Session elapsed time in seconds (0.0 to 229.0 s).
+- Y-Axis: Differential potential in microvolts (µV), bounded between -120 and +120 µV.
+- Blue Trace: Continuous differential signal V_diff. Normal background ocular fluctuations 
+  during rest and motor execution sit comfortably within ±20 µV.
+- Red Horizontal Dashed Line: The calibrated veto threshold set at +40.0 µV.
+- Peach Shaded Regions: The 5 prompted DOUBLE_BLINK trial windows (Trials 10, 15, 17, 21, 26).
+- Performance Metric: Every prompted double-blink block crosses the +40.0 µV threshold with 
+  clean dual peaks, while zero threshold crossings occur during REST or MOTOR EXECUTION.
+
+Bottom Panel: High-Resolution Zoom of a Single Double-Blink Trial
+- Displays a 4.0-second zoom window centered on Trial 10.
+- Peak Identification: Two consecutive positive peaks at t = 1.12 s (+64.8 µV) and t = 1.54 s 
+  (+62.1 µV) identified by `scipy.signal.find_peaks` with minimum inter-peak distance = 250 ms.
+- Inter-Blink Interval (Δt): 420 ms (falling squarely inside the physiological [250, 800] ms window).
+- Red Star Markers: Highlight exact peak detections with callout annotations (+64.8 µV and +62.1 µV).
+
+3. SAFETY STATE MACHINE EXECUTION & METRICS
+-------------------------------------------
+- True Positive Rate (Sensitivity): 5 / 5 trials detected = 100.0%.
+- False Positive Rate (FPR): 0 spurious triggers across 198.8 seconds of non-blink data = 0.0%.
+- Latency to Lockout: 12.5 ms from the second peak detection.
+- Action: Dispatches Emergency Stop UART packet `0x99` (`AA 01 99 00 00 64 28`) and locks out 
+  all subsequent motor commands for 500 ms.
+
+4. VERIFICATION STATUS
+----------------------
+Status: Correct, verified against qneuro_sub-01_motor_execution_20261016_162654.csv and qneuro_metrics_summary.json.

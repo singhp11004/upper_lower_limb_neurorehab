@@ -35,6 +35,15 @@ project1/data/
 
 ---
 
+## 2.1 In-Vivo Empirical Calibration Datasets (Qneuro H100)
+
+| Dataset Name | Subdirectory | Paradigm / Signal Target | File Format & Size | Roadmap Phase Target |
+|---|---|---|---|---|
+| **Qneuro H100 Bilateral Motor Execution Session** | `raw/motor_execution/` | Bilateral Real Movements (Double Blink, Jaw Clench, Hand, Leg, Rest) | `qneuro_sub-01_motor_execution_20261016_162654.csv` (8-ch @ 250 Hz, 57,250 samples, 6.3 MB) | **Phase 3 (Live Acquisition & Calibration)** & **Phase 4 (Actuator Loop)** |
+| **Session Metadata & Trial Timestamps** | `raw/motor_execution/` | JSON metadata, channel config, sampling rate, trial-by-trial event timing | `qneuro_sub-01_motor_execution_20261016_162654_metadata.json` (6.9 KB) | **Phase 3 / 4 Analysis & Validation** |
+
+---
+
 ## 3. How to Load and Use Datasets in Python Scripts
 
 ### 3.1 Loading PhysioNet EOG/EMG Data with MNE-Python (Phase 1/2)

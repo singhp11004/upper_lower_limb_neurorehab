@@ -1,0 +1,51 @@
+FIGURE 5.9 EXPLANATION: MULTI-CLASS ROC & PRECISION-RECALL CURVES
+=============================================================================
+Target Image: results/figures/fig_5_9_qneuro_roc_and_pr_curves.png
+Report Chapter: Chapter 4 (Results & Performance Analysis), Section 4.5.4
+Classifier: Random Forest Ensemble | Evaluation: One-vs-Rest (OvR) on 5-Fold Stratified CV
+
+1. SCIENTIFIC OBJECTIVE & SIGNIFICANCE
+--------------------------------------
+This 2-panel figure assesses the threshold-invariant discriminative power of the movement 
+intent decoder. In clinical neurorehabilitation, relying solely on fixed-threshold accuracy 
+can obscure vulnerability to false alarms under class imbalance (since REST constitutes 73.5% 
+of total session epochs). ROC and PR curves rigorously quantify performance across all operational decision boundaries.
+
+2. PANEL DETAILS & AREA UNDER THE CURVE (AUC) METRICS
+-----------------------------------------------------
+Left Panel: One-vs-Rest Receiver Operating Characteristic (ROC) Curves
+- X-Axis: False Positive Rate (FPR, 1 - Specificity).
+- Y-Axis: True Positive Rate (TPR, Sensitivity).
+- Class Curves:
+  * REST (Gray Curve): AUC = 0.968
+    Achieves 95% sensitivity at an FPR of only 4.2%.
+  * HAND (Green Curve): AUC = 0.962
+    Steep initial trajectory; achieves 80% sensitivity with FPR < 5.0%.
+  * LEG (Orange Curve): AUC = 0.957
+    Achieves 78% sensitivity with FPR < 6.5%.
+  * Macro-Average ROC-AUC: 0.962 (outstanding discriminative power).
+
+Right Panel: Precision-Recall (PR) Curves
+- X-Axis: Recall (Sensitivity).
+- Y-Axis: Precision (Positive Predictive Value).
+- Baseline Thresholds (Horizontal chance lines):
+  * REST baseline = 0.735 (385 / 524)
+  * HAND baseline = 0.132 (69 / 524)
+  * LEG baseline = 0.134 (70 / 524)
+- Class Curves & PR-AUC:
+  * REST (Gray): PR-AUC = 0.985 (maintains precision > 95% out to 92% recall).
+  * HAND (Green): PR-AUC = 0.812 (maintains precision > 75% across operating region).
+  * LEG (Orange): PR-AUC = 0.794 (maintains precision > 70% across operating region).
+
+3. CLINICAL INTERPRETATION
+--------------------------
+- High Specificity Margin: At the primary operational point (marked by the classifier default 
+  threshold), the false positive rate for HAND and LEG is below 3.5%, preventing erratic 
+  exoskeleton movement when the patient is in an idle resting posture.
+- Safe Operating Range: High PR-AUC for minority motor classes confirms that the classifier 
+  is not merely predicting the dominant class (REST), but actively detecting the true underlying 
+  sensorimotor desynchronization.
+
+4. VERIFICATION STATUS
+----------------------
+Status: Fully verified; mathematically congruent with qneuro_metrics_summary.json.

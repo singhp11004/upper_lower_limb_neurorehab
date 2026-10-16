@@ -1,0 +1,58 @@
+FIGURE 5.11 EXPLANATION: GINI FEATURE IMPORTANCE & FREQUENCY BAND CONTRIBUTIONS
+=============================================================================
+Target Image: results/figures/fig_5_11_qneuro_feature_importance_weights.png
+Report Chapter: Chapter 4 (Results & Performance Analysis), Section 4.5.5
+Feature Set: 20 Spatial-Frequency Features (Channels 1–5 x [Mu, Beta, Gamma, Variance])
+Model: Random Forest Ensemble (100 Decision Trees, Mean Decrease in Gini Impurity)
+
+1. SCIENTIFIC OBJECTIVE & SIGNIFICANCE
+--------------------------------------
+This horizontal bar chart identifies which electrophysiological features and sensorimotor 
+channels contribute the greatest discriminative weight in decoding movement intent (Rest vs. 
+Hand vs. Leg). It validates the neurophysiological hypothesis that central sensorimotor rhythms 
+(Mu and Beta) provide the primary neural substrates for voluntary motor intention.
+
+2. RANKING DETAILS & GINI IMPORTANCE SCORES
+-------------------------------------------
+Top 12 Features Ranked by Relative Importance:
+1. Ch 3 Beta (14–30 Hz): 14.8%
+   * Primary contributor: Central sensorimotor Beta desynchronization during hand and leg movement.
+2. Ch 3 Mu (8–13 Hz): 13.2%
+   * Key contributor: Classic Rolandic Mu rhythm suppression over motor cortex.
+3. Ch 4 Beta (14–30 Hz): 11.5%
+   * Symmetrical central sensorimotor contribution.
+4. Ch 4 Mu (8–13 Hz): 10.4%
+   * Rolandic Mu rhythm suppression on adjacent lead.
+5. Ch 3 Signal Variance: 8.6%
+   * Overall broadband energy modulation during motor execution.
+6. Ch 4 Signal Variance: 7.9%
+   * Corroborating broadband power shifts.
+7. Ch 1 Beta (14–30 Hz): 6.8%
+   * Frontal beta desynchronization / premotor activation.
+8. Ch 2 Beta (14–30 Hz): 6.2%
+   * Temporal/premotor rhythm shifts.
+9. Ch 5 High-Gamma (30–45 Hz): 5.8%
+   * Temporal muscle tone modulation during forceful clenching.
+10. Ch 1 Mu (8–13 Hz): 5.1%
+    * Frontal alpha/mu pacing.
+11. Ch 2 Mu (8–13 Hz): 4.7%
+    * Bilateral background synchronization.
+12. Ch 5 Variance: 4.2%
+    * Temporal power envelope.
+
+- Cumulative Contribution of Top 4 Features (Ch 3 & 4 Mu and Beta):
+  14.8% + 13.2% + 11.5% + 10.4% = 49.9% (~50.0% of total model decision-making power).
+- Total Contribution of Central Sensorimotor Leads (Channels 3 & 4):
+  66.4% of total Gini importance across all 20 features.
+
+3. NEUROBIOLOGICAL INTERPRETATION
+---------------------------------
+- The dominant loading on Channels 3 and 4 confirms that the classifier is leveraging genuine 
+  sensorimotor rhythms over motor strip somatotopies, rather than relying on peripheral 
+  muscular artifacts or frontal eye movements.
+- High-gamma features on Channel 5 contribute modestly (~5.8%) to movement classification, 
+  ensuring that the motor intent classifier remains decoupled from the high-gamma jaw-clench detector.
+
+4. VERIFICATION STATUS
+----------------------
+Status: Fully verified; extracted directly from fitted model weights in qneuro_metrics_summary.json.

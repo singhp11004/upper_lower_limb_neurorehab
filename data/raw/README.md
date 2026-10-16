@@ -52,3 +52,14 @@ data/raw/
 | `bilateral` (default) | 3, 4, 5, 6 | Full bilateral ERD/ERS mapping |
 | `left` | 3, 4 | Left hemiparesis rehabilitation (right hemisphere stroke) |
 | `right` | 5, 6 | Right hemiparesis rehabilitation (left hemisphere stroke) |
+
+---
+
+## 4. In-Vivo Recorded Datasets Catalog
+
+| Filename | Subject | Paradigm | Duration | Samples | Channels | Sampling Rate | Trials Completed | Status |
+|---|---|---|---|---|---|---|---|---|
+| `qneuro_sub-01_motor_execution_20261016_162654.csv` | `sub-01` | `motor_execution` (bilateral) | 229.0s (~3.8 min) | 57,250 | 8 EEG | 250.06 Hz | 30 trials (5/class) | **Primary Benchmark Dataset** (Analyzed in Report Chapter 4) |
+| `qneuro_sub-01_motor_execution_20261016_160122.csv` | `sub-01` | `motor_execution` (bilateral) | 229.0s (~3.8 min) | 57,250 | 8 EEG | 250.06 Hz | 30 trials (5/class) | Verification Run 1 |
+| `qneuro_sub-01_motor_execution_20261016_162551.csv` | `sub-01` | `motor_execution` (bilateral) | 28.7s | 7,175 | 8 EEG | 250.06 Hz | Pilot / Handshake | Initial Stream Sanity Check |
+
