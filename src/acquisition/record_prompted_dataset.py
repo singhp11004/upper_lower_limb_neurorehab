@@ -8,8 +8,10 @@ Supported Conditions:
   0: REST (Baseline)
   1: DOUBLE_BLINK (EOG Veto Signal)
   2: JAW_CLENCH (EMG Veto Signal)
-  3: HAND_CLENCH (Upper-Limb Real Execution)
-  4: LEG_EXTENSION (Lower-Limb Real Execution)
+  3: LEFT_HAND_CLENCH (Left Upper-Limb Motor Execution/Imagery)
+  4: LEFT_LEG_EXTENSION (Left Lower-Limb Motor Execution/Imagery)
+  5: RIGHT_HAND_CLENCH (Right Upper-Limb Motor Execution/Imagery)
+  6: RIGHT_LEG_EXTENSION (Right Lower-Limb Motor Execution/Imagery)
 """
 
 import os
@@ -212,15 +214,16 @@ def main():
 
         # Save Session Metadata
         paradigm_meta_desc = (
-            "Overt physical movements for rehabilitation & safety veto tuning"
+            "Overt Real Physical Movements for rehabilitation & safety veto tuning"
             if args.paradigm == "motor_execution"
-            else "Kinesthetic motor imagery without overt muscle contraction (stroke/rehab target)"
+            else "Kinesthetic Motor Imagery without overt muscle contraction (stroke/rehab target)"
         )
         # Convert int keys to strings for JSON compatibility
         event_mapping_json = {str(k): v for k, v in CONDITIONS.items()}
         meta = {
             "subject": args.subject,
             "paradigm": args.paradigm,
+            "laterality": args.laterality,
             "paradigm_description": paradigm_meta_desc,
             "timestamp": timestamp_str,
             "sample_rate_hz": srate,

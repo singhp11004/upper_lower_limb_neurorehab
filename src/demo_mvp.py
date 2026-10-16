@@ -239,6 +239,11 @@ def main():
                 except Exception:
                     workload_state = "ACTIVE"
 
+            # 5. Leg Extension Motor Intent
+            # TODO: Implement LegIntentDetector (CSP-based mu/beta ERD over C3/C4 motor cortex)
+            # This requires a trained CSP model from lateralized motor execution/imagery data.
+            is_leg_intent = False
+
             t3 = time.perf_counter()
             latencies["feature"] = (t3 - t2) * 1000
 
@@ -249,7 +254,8 @@ def main():
                 is_clench=is_clench,
                 p300_prob=p300_prob,
                 workload_state=workload_state,
-                current_time=time.monotonic()
+                current_time=time.monotonic(),
+                is_leg_intent=is_leg_intent,
             )
             t5 = time.perf_counter()
             latencies["clf"] = (t5 - t4) * 1000

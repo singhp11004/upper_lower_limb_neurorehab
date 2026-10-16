@@ -66,6 +66,8 @@ def main():
     (b_band, a_band), (b_notch, a_notch) = build_filters(srate)
     buffer_len = int(srate * 2) # 2-second circular buffer for filtering
     data_buffer = np.zeros((buffer_len, n_channels))
+    write_idx = 0
+    buffer_filled = 0
 
     print("\n[*] Receiving live stream (Ctrl+C to stop)...\n")
     sample_count = 0
@@ -84,15 +86,19 @@ def main():
             if csv_file:
                 csv_file.write(f"{timestamp}," + ",".join([f"{v:.4f}" for v in sample_arr]) + "\n")
 
-            data_buffer = np.roll(data_buffer, -1, axis=0)
-            data_buffer[-1, :] = sample_arr
+            # O(1) write-pointer circular buffer (no array copy)
+            data_buffer[write_idx, :] = sample_arr
+            write_idx = (write_idx + 1) % buffer_len
+            buffer_filled = min(buffer_filled + 1, buffer_len)
 
             # Display snapshot at ~5 Hz
             now = time.time()
             if now - last_print >= 0.2:
-                if args.filter and sample_count >= buffer_len:
+                if args.filter and buffer_filled >= buffer_len:
+                    # Reconstruct temporally-ordered buffer from circular write-pointer
+                    linear_buf = np.vstack((data_buffer[write_idx:], data_buffer[:write_idx]))
                     # Apply notch + bandpass across buffer
-                    notched = filtfilt(b_notch, a_notch, data_buffer, axis=0)
+                    notched = filtfilt(b_notch, a_notch, linear_buf, axis=0)
                     filtered = filtfilt(b_band, a_band, notched, axis=0)
                     disp = [round(x, 2) for x in filtered[-1, :]]
                     tag = "FILTERED [0.5-45Hz]"

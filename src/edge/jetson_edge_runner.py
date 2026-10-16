@@ -58,7 +58,8 @@ class JetsonEdgeRunner:
         is_veto: bool,
         is_clench: bool,
         feature_vector: np.ndarray,
-        workload_state: str = "ACTIVE"
+        workload_state: str = "ACTIVE",
+        is_leg_intent: bool = False,
     ) -> dict:
         """Runs one inference + arbitration step."""
         t0 = time.perf_counter()
@@ -67,7 +68,8 @@ class JetsonEdgeRunner:
             is_veto=is_veto,
             is_clench=is_clench,
             p300_prob=prob,
-            workload_state=workload_state
+            workload_state=workload_state,
+            is_leg_intent=is_leg_intent,
         )
 
         packet = None
