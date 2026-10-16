@@ -1,0 +1,263 @@
+{
+  "subject": "sub-01",
+  "paradigm": "motor_execution",
+  "laterality": "bilateral",
+  "paradigm_description": "Overt Real Physical Movements for rehabilitation & safety veto tuning",
+  "timestamp": "20261016_160122",
+  "sample_rate_hz": 250.0,
+  "channel_count": 8,
+  "total_trials_planned": 30,
+  "completed_trials": 30,
+  "interrupted": false,
+  "total_recorded_samples": 57250,
+  "duration_seconds": 229.0,
+  "event_mapping": {
+    "0": {
+      "name": "REST",
+      "text": "RELAX & LOOK AT CROSSHAIR (+)",
+      "cue": "[ + ]"
+    },
+    "1": {
+      "name": "DOUBLE_BLINK",
+      "text": "BLINK - BLINK (Quick Double Blink)",
+      "cue": "[ ** BLINK ** ]"
+    },
+    "2": {
+      "name": "JAW_CLENCH",
+      "text": "CLENCH JAW (Bite Down Firmly)",
+      "cue": "[ ## CLENCH JAW ## ]"
+    },
+    "3": {
+      "name": "LEFT_HAND_CLENCH",
+      "text": "SQUEEZE LEFT HAND & RELAX (Fist)",
+      "cue": "[ >> LEFT HAND << ]"
+    },
+    "4": {
+      "name": "LEFT_LEG_EXTENSION",
+      "text": "EXTEND LEFT LEG & RELAX (Kick)",
+      "cue": "[ ^^ LEFT LEG ^^ ]"
+    },
+    "5": {
+      "name": "RIGHT_HAND_CLENCH",
+      "text": "SQUEEZE RIGHT HAND & RELAX (Fist)",
+      "cue": "[ >> RIGHT HAND << ]"
+    },
+    "6": {
+      "name": "RIGHT_LEG_EXTENSION",
+      "text": "EXTEND RIGHT LEG & RELAX (Kick)",
+      "cue": "[ ^^ RIGHT LEG ^^ ]"
+    }
+  },
+  "trials_log": [
+    {
+      "trial": 1,
+      "event_id": 1,
+      "event_label": "DOUBLE_BLINK",
+      "start_time_iso": "2026-10-16T16:02:15.137942",
+      "start_epoch": 1792146735.137939
+    },
+    {
+      "trial": 2,
+      "event_id": 6,
+      "event_label": "RIGHT_LEG_EXTENSION",
+      "start_time_iso": "2026-10-16T16:02:22.268952",
+      "start_epoch": 1792146742.268949
+    },
+    {
+      "trial": 3,
+      "event_id": 2,
+      "event_label": "JAW_CLENCH",
+      "start_time_iso": "2026-10-16T16:02:29.397541",
+      "start_epoch": 1792146749.3975382
+    },
+    {
+      "trial": 4,
+      "event_id": 4,
+      "event_label": "LEFT_LEG_EXTENSION",
+      "start_time_iso": "2026-10-16T16:02:36.530720",
+      "start_epoch": 1792146756.5307171
+    },
+    {
+      "trial": 5,
+      "event_id": 1,
+      "event_label": "DOUBLE_BLINK",
+      "start_time_iso": "2026-10-16T16:02:43.663247",
+      "start_epoch": 1792146763.6632442
+    },
+    {
+      "trial": 6,
+      "event_id": 4,
+      "event_label": "LEFT_LEG_EXTENSION",
+      "start_time_iso": "2026-10-16T16:02:50.793562",
+      "start_epoch": 1792146770.7935596
+    },
+    {
+      "trial": 7,
+      "event_id": 5,
+      "event_label": "RIGHT_HAND_CLENCH",
+      "start_time_iso": "2026-10-16T16:02:57.924885",
+      "start_epoch": 1792146777.9248822
+    },
+    {
+      "trial": 8,
+      "event_id": 3,
+      "event_label": "LEFT_HAND_CLENCH",
+      "start_time_iso": "2026-10-16T16:03:05.055552",
+      "start_epoch": 1792146785.0555487
+    },
+    {
+      "trial": 9,
+      "event_id": 6,
+      "event_label": "RIGHT_LEG_EXTENSION",
+      "start_time_iso": "2026-10-16T16:03:12.187319",
+      "start_epoch": 1792146792.1873176
+    },
+    {
+      "trial": 10,
+      "event_id": 5,
+      "event_label": "RIGHT_HAND_CLENCH",
+      "start_time_iso": "2026-10-16T16:03:19.319104",
+      "start_epoch": 1792146799.3191018
+    },
+    {
+      "trial": 11,
+      "event_id": 3,
+      "event_label": "LEFT_HAND_CLENCH",
+      "start_time_iso": "2026-10-16T16:03:26.452677",
+      "start_epoch": 1792146806.452675
+    },
+    {
+      "trial": 12,
+      "event_id": 2,
+      "event_label": "JAW_CLENCH",
+      "start_time_iso": "2026-10-16T16:03:33.584513",
+      "start_epoch": 1792146813.5845115
+    },
+    {
+      "trial": 13,
+      "event_id": 3,
+      "event_label": "LEFT_HAND_CLENCH",
+      "start_time_iso": "2026-10-16T16:03:40.715572",
+      "start_epoch": 1792146820.71557
+    },
+    {
+      "trial": 14,
+      "event_id": 5,
+      "event_label": "RIGHT_HAND_CLENCH",
+      "start_time_iso": "2026-10-16T16:03:47.846478",
+      "start_epoch": 1792146827.8464766
+    },
+    {
+      "trial": 15,
+      "event_id": 6,
+      "event_label": "RIGHT_LEG_EXTENSION",
+      "start_time_iso": "2026-10-16T16:03:54.978625",
+      "start_epoch": 1792146834.9786224
+    },
+    {
+      "trial": 16,
+      "event_id": 4,
+      "event_label": "LEFT_LEG_EXTENSION",
+      "start_time_iso": "2026-10-16T16:04:02.109690",
+      "start_epoch": 1792146842.1096876
+    },
+    {
+      "trial": 17,
+      "event_id": 5,
+      "event_label": "RIGHT_HAND_CLENCH",
+      "start_time_iso": "2026-10-16T16:04:09.240249",
+      "start_epoch": 1792146849.2402465
+    },
+    {
+      "trial": 18,
+      "event_id": 2,
+      "event_label": "JAW_CLENCH",
+      "start_time_iso": "2026-10-16T16:04:16.374460",
+      "start_epoch": 1792146856.3744583
+    },
+    {
+      "trial": 19,
+      "event_id": 2,
+      "event_label": "JAW_CLENCH",
+      "start_time_iso": "2026-10-16T16:04:23.507037",
+      "start_epoch": 1792146863.5070338
+    },
+    {
+      "trial": 20,
+      "event_id": 3,
+      "event_label": "LEFT_HAND_CLENCH",
+      "start_time_iso": "2026-10-16T16:04:30.638133",
+      "start_epoch": 1792146870.6381302
+    },
+    {
+      "trial": 21,
+      "event_id": 5,
+      "event_label": "RIGHT_HAND_CLENCH",
+      "start_time_iso": "2026-10-16T16:04:37.769599",
+      "start_epoch": 1792146877.7695963
+    },
+    {
+      "trial": 22,
+      "event_id": 1,
+      "event_label": "DOUBLE_BLINK",
+      "start_time_iso": "2026-10-16T16:04:44.903025",
+      "start_epoch": 1792146884.903023
+    },
+    {
+      "trial": 23,
+      "event_id": 6,
+      "event_label": "RIGHT_LEG_EXTENSION",
+      "start_time_iso": "2026-10-16T16:04:52.034676",
+      "start_epoch": 1792146892.0346732
+    },
+    {
+      "trial": 24,
+      "event_id": 1,
+      "event_label": "DOUBLE_BLINK",
+      "start_time_iso": "2026-10-16T16:04:59.166390",
+      "start_epoch": 1792146899.1663847
+    },
+    {
+      "trial": 25,
+      "event_id": 6,
+      "event_label": "RIGHT_LEG_EXTENSION",
+      "start_time_iso": "2026-10-16T16:05:06.299031",
+      "start_epoch": 1792146906.2990294
+    },
+    {
+      "trial": 26,
+      "event_id": 1,
+      "event_label": "DOUBLE_BLINK",
+      "start_time_iso": "2026-10-16T16:05:13.431383",
+      "start_epoch": 1792146913.4313807
+    },
+    {
+      "trial": 27,
+      "event_id": 4,
+      "event_label": "LEFT_LEG_EXTENSION",
+      "start_time_iso": "2026-10-16T16:05:20.566040",
+      "start_epoch": 1792146920.5660372
+    },
+    {
+      "trial": 28,
+      "event_id": 4,
+      "event_label": "LEFT_LEG_EXTENSION",
+      "start_time_iso": "2026-10-16T16:05:27.698430",
+      "start_epoch": 1792146927.698426
+    },
+    {
+      "trial": 29,
+      "event_id": 3,
+      "event_label": "LEFT_HAND_CLENCH",
+      "start_time_iso": "2026-10-16T16:05:34.830465",
+      "start_epoch": 1792146934.8304627
+    },
+    {
+      "trial": 30,
+      "event_id": 2,
+      "event_label": "JAW_CLENCH",
+      "start_time_iso": "2026-10-16T16:05:41.959957",
+      "start_epoch": 1792146941.9599543
+    }
+  ]
+}

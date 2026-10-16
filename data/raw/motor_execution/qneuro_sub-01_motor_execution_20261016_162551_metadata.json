@@ -1,0 +1,67 @@
+{
+  "subject": "sub-01",
+  "paradigm": "motor_execution",
+  "laterality": "bilateral",
+  "paradigm_description": "Overt Real Physical Movements for rehabilitation & safety veto tuning",
+  "timestamp": "20261016_162551",
+  "sample_rate_hz": 250.0,
+  "channel_count": 8,
+  "total_trials_planned": 30,
+  "completed_trials": 2,
+  "interrupted": true,
+  "total_recorded_samples": 7175,
+  "duration_seconds": 28.7,
+  "event_mapping": {
+    "0": {
+      "name": "REST",
+      "text": "RELAX & LOOK AT CROSSHAIR (+)",
+      "cue": "[ + ]"
+    },
+    "1": {
+      "name": "DOUBLE_BLINK",
+      "text": "BLINK - BLINK (Quick Double Blink)",
+      "cue": "[ ** BLINK ** ]"
+    },
+    "2": {
+      "name": "JAW_CLENCH",
+      "text": "CLENCH JAW (Bite Down Firmly)",
+      "cue": "[ ## CLENCH JAW ## ]"
+    },
+    "3": {
+      "name": "LEFT_HAND_CLENCH",
+      "text": "SQUEEZE LEFT HAND & RELAX (Fist)",
+      "cue": "[ >> LEFT HAND << ]"
+    },
+    "4": {
+      "name": "LEFT_LEG_EXTENSION",
+      "text": "EXTEND LEFT LEG & RELAX (Kick)",
+      "cue": "[ ^^ LEFT LEG ^^ ]"
+    },
+    "5": {
+      "name": "RIGHT_HAND_CLENCH",
+      "text": "SQUEEZE RIGHT HAND & RELAX (Fist)",
+      "cue": "[ >> RIGHT HAND << ]"
+    },
+    "6": {
+      "name": "RIGHT_LEG_EXTENSION",
+      "text": "EXTEND RIGHT LEG & RELAX (Kick)",
+      "cue": "[ ^^ RIGHT LEG ^^ ]"
+    }
+  },
+  "trials_log": [
+    {
+      "trial": 1,
+      "event_id": 4,
+      "event_label": "LEFT_LEG_EXTENSION",
+      "start_time_iso": "2026-10-16T16:26:40.917582",
+      "start_epoch": 1792148200.9175794
+    },
+    {
+      "trial": 2,
+      "event_id": 4,
+      "event_label": "LEFT_LEG_EXTENSION",
+      "start_time_iso": "2026-10-16T16:26:48.049306",
+      "start_epoch": 1792148208.0493033
+    }
+  ]
+}

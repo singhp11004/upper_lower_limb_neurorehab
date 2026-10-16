@@ -32,21 +32,23 @@ def main():
     args = parser.parse_args()
 
     print(f"[*] Discovering Qneuro stream '{args.stream}' on local network...")
-    streams = resolve_byprop('name', args.stream, timeout=4.0)
-    if not streams:
-        print(f"[*] Stream '{args.stream}' not found immediately. Checking fallback names ('aq1', 'EEG', 'Qneuro_H100_EEG_PPG')...")
-        for fallback in ["aq1", "EEG", "Qneuro_H100_EEG_PPG", "admin_EEG"]:
-            streams = resolve_byprop('name', fallback, timeout=1.5)
+    streams = []
+    attempt = 0
+    while not streams:
+        attempt += 1
+        streams = resolve_byprop('name', args.stream, timeout=2.0)
+        if streams:
+            break
+        for fallback in ["aq1", "EEG", "ulnr_EEG", "Qneuro_H100_EEG_PPG", "admin_EEG"]:
+            streams = resolve_byprop('name', fallback, timeout=1.0)
             if streams:
                 print(f"[+] Connected to fallback stream: {fallback}")
                 break
-
-    if not streams:
-        print(f"[-] Stream '{args.stream}' not found. Available streams:")
-        all_s = resolve_streams(wait_time=2.0)
-        for s in all_s:
-            print(f"    - {s.name()} ({s.type()}) from {s.hostname()}")
-        sys.exit(1)
+        if not streams and attempt % 5 == 0:
+            all_s = resolve_streams(wait_time=1.0)
+            avail = [f"{s.name()} ({s.type()})" for s in all_s]
+            print(f"[*] Still waiting for '{args.stream}'... Visible streams: {avail if avail else 'None'}")
+        time.sleep(0.5)
 
     inlet = StreamInlet(streams[0], max_buflen=360)
     info = inlet.info()
