@@ -124,8 +124,8 @@ class SWLDAP300Classifier:
         y_pred = self.predict(X)
         return {
             "accuracy": float(np.round(accuracy_score(y, y_pred), 4)),
-            "precision": float(np.round(precision_score(y, y_pred, zero_division=0), 4)),
-            "recall": float(np.round(recall_score(y, y_pred, zero_division=0), 4)),
-            "f1_score": float(np.round(f1_score(y, y_pred, zero_division=0), 4)),
+            "precision": float(np.round(precision_score(y, y_pred, zero_division=0), 4)),  # type: ignore[arg-type]
+            "recall": float(np.round(recall_score(y, y_pred, zero_division=0), 4)),  # type: ignore[arg-type]
+            "f1_score": float(np.round(f1_score(y, y_pred, zero_division=0), 4)),  # type: ignore[arg-type]
             "selected_features_count": len(self.selected_indices)
         }

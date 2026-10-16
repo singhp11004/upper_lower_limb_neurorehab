@@ -189,6 +189,8 @@ def main():
 
             epoch_idx += 1
             window = ring_buf.get_latest_window()  # (16, 500)
+            if window is None:
+                continue
 
             # Injections for automated verification
             if 0 <= args.inject_veto_at <= elapsed <= args.inject_veto_at + 0.4:
@@ -260,7 +262,7 @@ def main():
             t5 = time.perf_counter()
             latencies["clf"] = (t5 - t4) * 1000
 
-            if decision.cmd_id is not None:
+            if decision.cmd_id is not None and decision.module_id is not None:
                 packet = PacketEncoder.encode(
                     module_id=decision.module_id,
                     cmd_id=decision.cmd_id,

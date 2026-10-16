@@ -21,6 +21,7 @@ class TestAcquisitionModule(unittest.TestCase):
         self.assertTrue(buf.is_ready())
         win = buf.get_latest_window()
         self.assertIsNotNone(win)
+        assert win is not None  # pyright type narrowing
         self.assertEqual(win.shape, (16, 500))
 
     def test_signal_quality_monitor(self):
@@ -83,6 +84,7 @@ class TestAcquisitionModule(unittest.TestCase):
 
         result = process_packet(bytes(packet))
         self.assertIsNotNone(result)
+        assert result is not None  # pyright type narrowing
         self.assertEqual(len(result), 10)  # 8 EEG + 2 PPG
         # EEG ch1 raw ADC = 1000, scaled by ADC_TO_UV ≈ 0.02235 µV/LSB
         from src.acquisition.qneuro_pipeline import ADC_TO_UV
@@ -114,6 +116,7 @@ class TestAcquisitionModule(unittest.TestCase):
 
         win = buf.get_latest_window()
         self.assertIsNotNone(win)
+        assert win is not None  # pyright type narrowing
         self.assertEqual(win.shape, (8, 100))
         np.testing.assert_allclose(win, 10.0)
 

@@ -272,7 +272,7 @@ def generate_fig_4_6_spectrogram():
     # Baseline + clench burst between 1.5s and 2.5s
     sig = np.random.randn(len(t)) * 5.0
     mask = (t >= 1.5) & (t <= 2.5)
-    sig[mask] += 30.0 * np.sin(2 * np.pi * 38.0 * t[mask]) + np.random.randn(np.sum(mask)) * 20.0
+    sig[mask] += 30.0 * np.sin(2 * np.pi * 38.0 * t[mask]) + np.random.randn(int(np.sum(mask))) * 20.0
 
     f, t_spec, Sxx = signal.spectrogram(sig, fs=fs, nperseg=64, noverlap=48)
 

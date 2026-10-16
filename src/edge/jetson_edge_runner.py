@@ -73,7 +73,7 @@ class JetsonEdgeRunner:
         )
 
         packet = None
-        if decision.cmd_id is not None:
+        if decision.cmd_id is not None and decision.module_id is not None:
             packet = PacketEncoder.encode(
                 module_id=decision.module_id,
                 cmd_id=decision.cmd_id,

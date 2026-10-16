@@ -44,8 +44,8 @@ def main():
     # Filter parameters (0.5 - 45 Hz bandpass + 50 Hz notch)
     srate = streams[0].nominal_srate() or 250.0
     nyq = 0.5 * srate
-    b_band, a_band = butter(4, [0.5 / nyq, 45.0 / nyq], btype='band')
-    b_notch, a_notch = iirnotch(50.0 / nyq, 30.0)
+    b_band, a_band = butter(4, [0.5 / nyq, 45.0 / nyq], btype='band')  # type: ignore[misc]
+    b_notch, a_notch = iirnotch(50.0 / nyq, 30.0)  # type: ignore[misc]
 
     data_buffer = np.zeros((WINDOW_SIZE, NUM_CHANNELS))
 
@@ -105,7 +105,7 @@ def main():
         return lines
 
     ani = FuncAnimation(fig, update_plot, blit=False, interval=30, cache_frame_data=False)
-    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    plt.tight_layout(rect=(0.0, 0.0, 1.0, 0.96))
     plt.show()
 
 

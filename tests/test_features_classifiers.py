@@ -32,7 +32,7 @@ class TestFeaturesAndClassifiers(unittest.TestCase):
         triggers = df["Trigger_Target"].values
 
         # Preprocess EEG
-        filtered_eeg = self.filter_pipeline.process(eeg_raw)
+        filtered_eeg = self.filter_pipeline.process(np.asarray(eeg_raw))
 
         # Slice into 2.0s epochs
         epochs = self.epoch_slicer.slice_signal(filtered_eeg)
@@ -45,7 +45,7 @@ class TestFeaturesAndClassifiers(unittest.TestCase):
         y_labels = np.zeros(len(epochs), dtype=int)
         for i in range(len(epochs)):
             start_idx = i * 25
-            if np.any(triggers[start_idx : start_idx + 500] == 1):
+            if np.any(np.asarray(triggers[start_idx : start_idx + 500]) == 1):
                 y_labels[i] = 1
 
         # Train SWLDA P300 Classifier
@@ -67,7 +67,7 @@ class TestFeaturesAndClassifiers(unittest.TestCase):
             self.skipTest("PhysioNet EDF file missing.")
 
         raw = mne.io.read_raw_edf(edf_path, preload=True, verbose=False)
-        eeg_data = raw.get_data()[:16, :] * 1e6  # Convert Volts to uV
+        eeg_data = np.asarray(raw.get_data())[:16, :] * 1e6  # Convert Volts to uV
 
         blink_detector = EOGBlinkDetector(sample_rate=160, peak_threshold_uv=50.0)
         is_veto, count, details = blink_detector.detect_blinks(eeg_data[:, :1600])

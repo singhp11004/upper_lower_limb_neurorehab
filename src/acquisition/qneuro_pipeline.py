@@ -9,7 +9,7 @@ import sys
 import time
 import socket
 import struct
-from pylsl import StreamInfo, StreamOutlet
+from pylsl import StreamInfo, StreamOutlet, cf_float32
 
 BD_ADDR = "2C:FE:8B:FC:80:C1"
 RFCOMM_CHANNELS = [6, 8]
@@ -59,7 +59,7 @@ def process_packet(packet: bytes):
 
 def create_lsl_outlet(stream_name: str = DEFAULT_STREAM_NAME):
     """Instantiate the Lab Streaming Layer (LSL) Blueprint."""
-    lsl_info = StreamInfo(stream_name, 'EEG_PPG', 10, 250, 'float32', 'qneuro_80c1')
+    lsl_info = StreamInfo(stream_name, 'EEG_PPG', 10, 250, cf_float32, 'qneuro_80c1')
     channels = lsl_info.desc().append_child("channels")
     labels = [f"EEG_{i+1}" for i in range(8)] + ["PPG_Red", "PPG_IR"]
     for label in labels:
@@ -71,6 +71,7 @@ def connect_socket(bd_addr: str = BD_ADDR, channels=None):
     if channels is None:
         channels = RFCOMM_CHANNELS
     for ch in channels:
+        s = None
         try:
             print(f"[*] Trying Bluetooth Serial SPP Socket ({bd_addr}: Channel {ch})...")
             s = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
@@ -80,10 +81,11 @@ def connect_socket(bd_addr: str = BD_ADDR, channels=None):
             return s
         except Exception as e:
             print(f"[-] Channel {ch} failed: {e}")
-            try:
-                s.close()
-            except Exception:
-                pass
+            if s is not None:
+                try:
+                    s.close()
+                except Exception:
+                    pass
     return None
 
 

@@ -8,7 +8,7 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 try:
-    import serial
+    import serial  # type: ignore
 except ImportError:
     serial = None
 
@@ -32,6 +32,7 @@ class SerialManager:
 
     def _connect(self) -> bool:
         try:
+            assert serial is not None, "pyserial is required for hardware serial connections"
             self.serial_conn = serial.Serial(
                 port=self.port_name,
                 baudrate=self.baudrate,

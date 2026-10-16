@@ -23,16 +23,16 @@ class EEGFilterPipeline:
 
         # 4th-order Butterworth bandpass (0.5 - 45 Hz)
         nyq = 0.5 * sample_rate
-        self.b_band, self.a_band = butter(4, [lowcut / nyq, highcut / nyq], btype="bandpass")
+        self.b_band, self.a_band = butter(4, [lowcut / nyq, highcut / nyq], btype="bandpass")  # type: ignore[misc]
 
         # 50 Hz iirnotch filter
-        self.b_notch, self.a_notch = iirnotch(notch_freq / nyq, notch_q)
+        self.b_notch, self.a_notch = iirnotch(notch_freq / nyq, notch_q)  # type: ignore[misc]
 
         # Alpha bandpass (8 - 13 Hz)
-        self.b_alpha, self.a_alpha = butter(3, [8.0 / nyq, 13.0 / nyq], btype="bandpass")
+        self.b_alpha, self.a_alpha = butter(3, [8.0 / nyq, 13.0 / nyq], btype="bandpass")  # type: ignore[misc]
 
         # High-Gamma bandpass (30 - 45 Hz)
-        self.b_gamma, self.a_gamma = butter(3, [30.0 / nyq, 45.0 / nyq], btype="bandpass")
+        self.b_gamma, self.a_gamma = butter(3, [30.0 / nyq, 45.0 / nyq], btype="bandpass")  # type: ignore[misc]
 
     def process(self, eeg_data: np.ndarray, zero_phase: bool = True) -> np.ndarray:
         """
@@ -51,14 +51,14 @@ class EEGFilterPipeline:
         # Apply bandpass filter
         bandpassed = filter_func(self.b_band, self.a_band, notched, axis=-1)
 
-        return bandpassed if eeg_data.ndim != 1 else bandpassed[0]
+        return bandpassed if eeg_data.ndim != 1 else bandpassed[0]  # type: ignore[return-value]
 
     def extract_alpha_band(self, eeg_data: np.ndarray, zero_phase: bool = True) -> np.ndarray:
         """Extract temporal alpha sub-band (8–13 Hz)."""
         filter_func = filtfilt if zero_phase and eeg_data.shape[-1] > 15 else lfilter
-        return filter_func(self.b_alpha, self.a_alpha, eeg_data, axis=-1)
+        return filter_func(self.b_alpha, self.a_alpha, eeg_data, axis=-1)  # type: ignore[return-value]
 
     def extract_high_gamma_band(self, eeg_data: np.ndarray, zero_phase: bool = True) -> np.ndarray:
         """Extract high-gamma sub-band (30–45 Hz) for jaw-clench triggers."""
         filter_func = filtfilt if zero_phase and eeg_data.shape[-1] > 15 else lfilter
-        return filter_func(self.b_gamma, self.a_gamma, eeg_data, axis=-1)
+        return filter_func(self.b_gamma, self.a_gamma, eeg_data, axis=-1)  # type: ignore[return-value]

@@ -17,7 +17,7 @@ def build_filters(srate=250.0):
     nyq = 0.5 * srate
     low = 0.5 / nyq
     high = 45.0 / nyq
-    b_band, a_band = butter(4, [low, high], btype='band')
+    b_band, a_band = butter(4, [low, high], btype='band')  # type: ignore[misc]
     
     # 50 Hz Notch filter (Q=30)
     w0 = 50.0 / nyq

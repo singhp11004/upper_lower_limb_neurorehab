@@ -62,7 +62,7 @@ class BrainFlowStreamer:
 
     def _init_board(self):
         try:
-            from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
+            from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds  # type: ignore
 
             params = BrainFlowInputParams()
 
