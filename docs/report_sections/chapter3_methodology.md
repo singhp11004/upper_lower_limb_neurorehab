@@ -2,6 +2,11 @@
 
 ## 3.1 Hardware Architecture & Dual-Modality Biosignal Ingestion
 The system integrates a hierarchical cyber-physical loop accommodating dual research and wearable hardware platforms:
+
+![Figure 3.1: Four-Tier End-to-End System Architecture Block Diagram](../../results/figures/fig_3_1_system_architecture.png)
+
+*Figure 3.1: Four-tier system architecture connecting around-the-ear biosignal acquisition (Tier 1), Jetson Orin Nano edge processing (Tier 2), ESP32-P4 FreeRTOS actuation (Tier 3), and cross-limb testbed (Tier 4).*
+
 1. **Sensing Subsystem**:
    - **OpenBCI Cyton (8-ch) + Daisy (8-ch)**: Digitizing 16 periauricular cEEGrid channels at $f_s = 250\text{ Hz}$ via 24-bit Texas Instruments ADS1299 ADC.
    - **Qneuro H100 NeuroState**: Wireless Bluetooth RFCOMM Serial Port Profile (SPP) stream delivering 8 channels of 24-bit EEG ($f_s = 250\text{ Hz}$) and 2 channels of 16-bit optical photoplethysmography (PPG). Unpacked via `src/acquisition/qneuro_pipeline.py` and broadcast via Lab Streaming Layer (LSL) stream `aq1`.
@@ -45,6 +50,11 @@ To condition weak electrophysiological potentials ($\pm 5\text{ to } 50\text{ }\
 - Relative alpha power ratio ($8\text{ to }13\text{ Hz}$) gating state machine into Active vs. Rest to prevent accidental command dispatch during cognitive fatigue.
 
 ## 3.4 Command Arbitration & Binary UART Communication Protocol
+
+![Figure 3.2: Priority Arbitration State Machine and Dwell-Time Safety Flowchart](../../results/figures/fig_3_2_arbitration_flowchart.png)
+
+*Figure 3.2: Priority arbitration state machine and dwell-time safety flowchart enforcing 5-level priority cascade with 300 ms dwell confirmation.*
+
 Commands are serialized into a deterministic 7-byte binary packet at 115200 baud:
 ```
 [0xAA] [MODULE] [CMD] [PARAM_HI] [PARAM_LO] [CONFIDENCE] [CRC8_MAXIM]

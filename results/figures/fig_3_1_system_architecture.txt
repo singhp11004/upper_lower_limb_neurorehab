@@ -1,0 +1,2 @@
+Figure 3.1: Four-Tier End-to-End System Architecture Block Diagram
+Shows Tier 1 (Biosignal Acquisition), Tier 2 (Jetson Edge AI Host), Tier 3 (ESP32-P4 FreeRTOS MCU), and Tier 4 (Physical Hand and Leg Testbed).

@@ -1,0 +1,2 @@
+Figure 3.2: Priority Arbitration State Machine and Dwell-Time Safety Flowchart
+Illustrates Level 1 EOG Double-Blink Emergency Veto, Level 2 Temporalis Jaw-Clench, Level 2.5 Leg Intent, Level 3 P300 Oddball, and Level 4 Alpha Workload Fatigue Gating with 300 ms dwell confirmation.

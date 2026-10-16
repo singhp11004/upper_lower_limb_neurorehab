@@ -38,14 +38,71 @@ def create_report():
     print("Initializing Document...")
     doc = docx.Document()
 
-    # --- Page Setup (A4, Left=3.81cm, Right=2.54cm, Top=2.54cm, Bottom=2.54cm) ---
+    def configure_section_margins(sec):
+        sec.page_width = Inches(8.27)
+        sec.page_height = Inches(11.69)
+        sec.top_margin = Inches(1.0)
+        sec.bottom_margin = Inches(1.0)
+        sec.left_margin = Inches(1.5)   # 3.81 cm binding margin per VIT spec
+        sec.right_margin = Inches(1.0)  # 2.54 cm
+
+    def set_section_footer_page_number(sec):
+        sec.footer.is_linked_to_previous = False
+        p_ftr = sec.footer.paragraphs[0]
+        p_ftr.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p_ftr.paragraph_format.space_before = Pt(0)
+        p_ftr.paragraph_format.space_after = Pt(0)
+        run = p_ftr.add_run()
+        run.font.name = "Times New Roman"
+        run.font.size = Pt(10)
+        fld1 = parse_xml(r'<w:fldChar %s w:fldCharType="begin"/>' % nsdecls('w'))
+        instr = parse_xml(r'<w:instrText %s xml:space="preserve"> PAGE </w:instrText>' % nsdecls('w'))
+        fld2 = parse_xml(r'<w:fldChar %s w:fldCharType="separate"/>' % nsdecls('w'))
+        fld3 = parse_xml(r'<w:fldChar %s w:fldCharType="end"/>' % nsdecls('w'))
+        run._r.append(fld1)
+        run._r.append(instr)
+        run._r.append(fld2)
+        run._r.append(fld3)
+
+    def add_code_block(code_text):
+        tbl = doc.add_table(rows=1, cols=1)
+        tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+        tbl.autofit = False
+        cell = tbl.cell(0, 0)
+        cell.width = Inches(5.77)
+
+        shd = parse_xml(r'<w:shd %s w:fill="F4F6F9"/>' % nsdecls('w'))
+        borders = parse_xml(r'''
+            <w:tcBorders %s>
+                <w:top w:val="single" w:sz="4" w:space="0" w:color="D0D7DE"/>
+                <w:left w:val="single" w:sz="18" w:space="0" w:color="002060"/>
+                <w:bottom w:val="single" w:sz="4" w:space="0" w:color="D0D7DE"/>
+                <w:right w:val="single" w:sz="4" w:space="0" w:color="D0D7DE"/>
+            </w:tcBorders>
+        ''' % nsdecls('w'))
+        cell._tc.get_or_add_tcPr().append(shd)
+        cell._tc.get_or_add_tcPr().append(borders)
+
+        par = cell.paragraphs[0]
+        par.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        par.paragraph_format.line_spacing = 1.05
+        par.paragraph_format.space_before = Pt(4)
+        par.paragraph_format.space_after = Pt(4)
+        run = par.add_run(code_text)
+        run.font.name = "Consolas"
+        run.font.size = Pt(8.5)
+        run.font.color.rgb = RGBColor(35, 35, 35)
+
+        p_sp = doc.add_paragraph()
+        p_sp.paragraph_format.space_before = Pt(0)
+        p_sp.paragraph_format.space_after = Pt(4)
+        p_sp.paragraph_format.line_spacing = 1.0
+
+    # --- Section 1: Cover & Title Pages (No Page Numbers in Footer) ---
     section = doc.sections[0]
-    section.page_width = Inches(8.27)
-    section.page_height = Inches(11.69)
-    section.top_margin = Inches(1.0)
-    section.bottom_margin = Inches(1.0)
-    section.left_margin = Inches(1.5)   # 3.81 cm
-    section.right_margin = Inches(1.0)  # 2.54 cm
+    configure_section_margins(section)
+    section.different_first_page_header_footer = True
+    section.footer.paragraphs[0].text = ""
 
     # Configure Default Styles
     style_normal = doc.styles['Normal']
@@ -229,7 +286,16 @@ def create_report():
     p("by", font_size=12, italic=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=12)
     p("PARDEEP SINGH (23BRS1123)\nAASTHA KUMARI (23BRS1040)", font_size=13.5, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=40)
     p("SCHOOL OF COMPUTER SCIENCE AND ENGINEERING\nVELLORE INSTITUTE OF TECHNOLOGY, CHENNAI\nNOVEMBER, 2026", font_size=13, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=0)
-    doc.add_page_break()
+
+    # --- Section 2: Front Matter (Declaration to Abbreviations: lowerRoman iii, iv, ...) ---
+    sec_front = doc.add_section()
+    configure_section_margins(sec_front)
+    sec_front.different_first_page_header_footer = False
+    sec_front.header.is_linked_to_previous = False
+    sec_front.footer.is_linked_to_previous = False
+    pgNumType_front = parse_xml(r'<w:pgNumType %s w:start="3" w:fmt="lowerRoman"/>' % nsdecls('w'))
+    sec_front._sectPr.append(pgNumType_front)
+    set_section_footer_page_number(sec_front)
 
     # 3. DECLARATION
     p("DECLARATION", font_size=16, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=18)
@@ -303,65 +369,66 @@ def create_report():
         ("CERTIFICATE", "iv"),
         ("ABSTRACT", "v"),
         ("ACKNOWLEDGEMENT", "vii"),
-        ("LIST OF TABLES", "ix"),
-        ("LIST OF FIGURES", "x"),
-        ("LIST OF SYMBOLS AND ABBREVIATIONS", "xii"),
+        ("TABLE OF CONTENTS", "viii"),
+        ("LIST OF TABLES", "xi"),
+        ("LIST OF FIGURES", "xiii"),
+        ("LIST OF SYMBOLS AND ABBREVIATIONS", "xv"),
         ("CHAPTER 1: INTRODUCTION", "1"),
         ("  1.1 Clinical Background and Motivation", "1"),
-        ("  1.2 Problem Statement", "2"),
-        ("  1.3 Limitations of Conventional Scalp EEG", "3"),
-        ("  1.4 The Around-the-Ear (cEEGrid) Paradigm", "4"),
-        ("  1.5 Dual-Module Cross-Limb Control Philosophy", "5"),
-        ("  1.6 Research Objectives", "6"),
-        ("  1.7 Scope and Technical Boundaries", "7"),
-        ("  1.8 Report Organization", "7"),
-        ("CHAPTER 2: LITERATURE REVIEW", "8"),
-        ("  2.1 Theoretical Foundations of BCI Neurorehabilitation", "8"),
-        ("  2.2 Taxonomy of Biosignal Modalities: MI vs ERP vs Periauricular", "9"),
-        ("  2.3 Around-the-Ear EEG (cEEGrid) State-of-the-Art", "11"),
-        ("  2.4 Upper- and Lower-Limb Exoskeleton Architectures", "12"),
-        ("  2.5 Embedded Classifiers and Edge Intelligence", "14"),
-        ("  2.6 Multi-Tier Safety Interlocks and Clinical Risk Mitigation", "15"),
-        ("  2.7 Literature Synthesis Matrix (17 Core Publications)", "16"),
-        ("  2.8 Identification of Research Gaps", "18"),
-        ("CHAPTER 3: METHODOLOGY AND SYSTEM ARCHITECTURE", "19"),
-        ("  3.1 Four-Tier System Architecture Overview", "19"),
-        ("  3.2 Tier 1: Biosignal Acquisition Subsystem", "20"),
-        ("  3.3 Tier 2: Preprocessing and Signal Conditioning Pipeline", "21"),
-        ("  3.4 Feature Extraction Formulations", "23"),
-        ("  3.5 Classifier Algorithms: SWLDA and Workload LDA", "25"),
-        ("  3.6 Priority Arbitrator and Safety State Machine", "27"),
-        ("  3.7 Binary Telemetry Protocol and Packet Serialization", "28"),
-        ("  3.8 Tier 3: Real-Time Actuation and FreeRTOS MCU Architecture", "29"),
-        ("  3.9 Tier 4: Physical Testbed (Hand and Leg Modules)", "31"),
-        ("CHAPTER 4: EXPERIMENTAL RESULTS (BENCHMARK EVALUATION)", "32"),
-        ("  4.1 Signal Conditioning and Power Spectral Density Analysis", "32"),
-        ("  4.2 P300 ERP Grand Average Morphology", "34"),
-        ("  4.3 Classification Performance and Confusion Matrices", "36"),
-        ("  4.4 Discriminative Power: ROC and Precision-Recall Curves", "38"),
-        ("  4.5 Safety Interlock: Periauricular EOG Double-Blink Veto", "40"),
-        ("  4.6 Myoelectric Triggering: Temporalis EMG High-Gamma Spectrogram", "42"),
-        ("  4.7 End-to-End Latency and Real-Time Timing Budget Compliance", "44"),
-        ("  4.8 Longitudinal False Positive Rate Stability", "46"),
-        ("  4.9 Edge Compute Resource Utilization on Jetson Orin Nano", "48"),
-        ("CHAPTER 5: IN-VIVO VALIDATION ON QNEURO H100 HEADSET", "49"),
-        ("  5.1 Live Data Acquisition Protocol and Experimental Setup", "49"),
-        ("  5.2 Continuous Multi-Channel Signal Conditioning", "51"),
-        ("  5.3 Spectral Power and Time-Frequency Signatures", "53"),
-        ("  5.4 Veto and Safety Interrupt Calibration on Headset Montage", "55"),
-        ("  5.5 Sensorimotor Rhythm ERD and Multi-Class Movement Classification", "57"),
-        ("  5.6 Channel Quality Diagnostics and Feature Importance", "60"),
-        ("  5.7 Real-Time Actuator Arbitration Progression", "62"),
-        ("  5.8 In-Vivo Performance Summary Matrix", "63"),
-        ("CHAPTER 6: CONCLUSION AND FUTURE SCOPE", "64"),
-        ("  6.1 Summary of Contributions", "64"),
-        ("  6.2 Milestone Verification Against Roadmap Targets", "65"),
-        ("  6.3 Current Technical Limitations", "66"),
-        ("  6.4 Future Clinical and Deep Learning Roadmap", "67"),
-        ("REFERENCES (APA 7th Format)", "68"),
-        ("APPENDIX A: INDIVIDUAL CONTRIBUTION AND GUIDE FEEDBACK", "72"),
-        ("APPENDIX B: CORE EMBEDDED PRODUCTION CODE IMPLEMENTATION", "75"),
-        ("APPENDIX C: HARDWARE BILL OF MATERIALS AND PIN MAPPING", "79"),
+        ("  1.2 Problem Statement", "1"),
+        ("  1.3 Limitations of Conventional Scalp EEG", "2"),
+        ("  1.4 The Around-the-Ear (cEEGrid) Paradigm", "3"),
+        ("  1.5 Dual-Module Cross-Limb Control Philosophy", "3"),
+        ("  1.6 Research Objectives", "4"),
+        ("  1.7 Scope and Technical Boundaries", "4"),
+        ("  1.8 Report Organization", "5"),
+        ("CHAPTER 2: LITERATURE REVIEW", "6"),
+        ("  2.1 Theoretical Foundations of BCI Neurorehabilitation", "6"),
+        ("  2.2 Taxonomy of Biosignal Modalities: MI vs ERP vs Periauricular Signals", "6"),
+        ("  2.3 Around-the-Ear EEG (cEEGrid) State-of-the-Art", "7"),
+        ("  2.4 Upper- and Lower-Limb Exoskeleton Architectures", "8"),
+        ("  2.5 Embedded Classifiers and Edge Intelligence", "8"),
+        ("  2.6 Multi-Tier Safety Interlocks and Clinical Risk Mitigation", "9"),
+        ("  2.7 Literature Synthesis Matrix (17 Core Publications)", "9"),
+        ("  2.8 Identification of Research Gaps", "11"),
+        ("CHAPTER 3: METHODOLOGY AND SYSTEM ARCHITECTURE", "13"),
+        ("  3.1 Four-Tier System Architecture Overview", "13"),
+        ("  3.2 Tier 1: Biosignal Acquisition Subsystem", "14"),
+        ("  3.3 Tier 2: Preprocessing and Signal Conditioning Pipeline", "14"),
+        ("  3.4 Feature Extraction Formulations", "15"),
+        ("  3.5 Classifier Algorithms: SWLDA and Workload LDA", "16"),
+        ("  3.6 Priority Arbitrator and Safety State Machine", "16"),
+        ("  3.7 Binary Telemetry Protocol and Packet Serialization", "18"),
+        ("  3.8 Tier 3: Real-Time Actuation and FreeRTOS MCU Architecture", "18"),
+        ("  3.9 Tier 4: Physical Testbed (Hand and Leg Modules)", "19"),
+        ("CHAPTER 4: EXPERIMENTAL RESULTS (BENCHMARK EVALUATION)", "20"),
+        ("  4.1 Signal Conditioning and Power Spectral Density Analysis", "20"),
+        ("  4.2 P300 ERP Grand Average Morphology", "21"),
+        ("  4.3 Classification Performance and Confusion Matrices", "21"),
+        ("  4.4 Discriminative Power: ROC and Precision-Recall Curves", "23"),
+        ("  4.5 Safety Interlock: Periauricular EOG Double-Blink Veto", "23"),
+        ("  4.6 Myoelectric Triggering: Temporalis EMG High-Gamma Spectrogram", "24"),
+        ("  4.7 End-to-End Latency and Real-Time Timing Budget Compliance", "25"),
+        ("  4.8 Longitudinal False Positive Rate Stability", "25"),
+        ("  4.9 Edge Compute Resource Utilization on Jetson Orin Nano", "26"),
+        ("CHAPTER 5: IN-VIVO VALIDATION ON QNEURO H100 HEADSET", "27"),
+        ("  5.1 Live Data Acquisition Protocol and Experimental Setup", "27"),
+        ("  5.2 Continuous Multi-Channel Signal Conditioning", "31"),
+        ("  5.3 Spectral Power and Time-Frequency Signatures", "32"),
+        ("  5.4 Veto and Safety Interrupt Calibration on Headset Montage", "34"),
+        ("  5.5 Sensorimotor Rhythm ERD and Multi-Class Movement Classification", "35"),
+        ("  5.6 Channel Quality Diagnostics and Feature Importance", "39"),
+        ("  5.7 Real-Time Actuator Arbitration Progression", "41"),
+        ("  5.8 In-Vivo Performance Summary Matrix", "42"),
+        ("CHAPTER 6: CONCLUSION AND FUTURE SCOPE", "43"),
+        ("  6.1 Summary of Contributions", "43"),
+        ("  6.2 Milestone Verification Against Roadmap Targets", "43"),
+        ("  6.3 Current Technical Limitations", "44"),
+        ("  6.4 Future Clinical and Deep Learning Roadmap", "45"),
+        ("REFERENCES (APA 7th Format)", "46"),
+        ("APPENDIX A: INDIVIDUAL CONTRIBUTION STATEMENT AND GUIDE FEEDBACK INCORPORATION", "48"),
+        ("APPENDIX B: CORE EMBEDDED PRODUCTION CODE IMPLEMENTATION", "51"),
+        ("APPENDIX C: HARDWARE BILL OF MATERIALS AND PIN MAPPINGS", "54"),
     ]
     toc_tbl = doc.add_table(rows=0, cols=2)
     toc_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -394,20 +461,20 @@ def create_report():
     # 8. LIST OF TABLES
     p("LIST OF TABLES", font_size=16, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=18)
     lot_data = [
-        ("Table 2.1", "Comprehensive Literature Synthesis Matrix (17 Core Publications)", "17"),
-        ("Table 2.2", "Identification of Critical Research Gaps in Contemporary BCI Exoskeletons", "18"),
-        ("Table 3.1", "UART Binary Telemetry Packet Structure (7-Byte Frame Protocol)", "28"),
-        ("Table 3.2", "ESP32-P4 FreeRTOS Dual-Core Real-Time Task Allocation and Priorities", "30"),
-        ("Table 4.1", "BCI Classifier Performance Summary Metrics Across All Operational Modes", "37"),
-        ("Table 4.2", "Five-Fold Stratified Cross-Validation Results for SWLDA and Workload Models", "38"),
-        ("Table 4.3", "End-to-End Computational Latency Breakdown Against 100 ms Real-Time Budget", "45"),
-        ("Table 5.1", "Qneuro H100 Live Acquisition Session Parameters and Dataset Statistics", "50"),
-        ("Table 5.2", "Real-World Qneuro H100 Headset Performance Summary Matrix (In-Vivo)", "63"),
-        ("Table 6.1", "Comprehensive Verification Matrix Against Initial Project Roadmap Targets", "65"),
-        ("Table A.1", "Detailed Individual Contribution Breakdown (Pardeep Singh vs Aastha Kumari)", "73"),
-        ("Table A.2", "Review Committee and Guide Feedback Incorporation Tracking Matrix", "74"),
-        ("Table C.1", "Consolidated Hardware Procurement Specification and Bill of Materials (BOM)", "79"),
-        ("Table C.2", "ESP32-P4 MCU and PCA9685 Peripheral Hardware Pinout Mapping", "80"),
+        ("Table 2.1", "Comprehensive Literature Synthesis Matrix (17 Core Publications)", "9"),
+        ("Table 2.2", "Identification of Critical Research Gaps in Contemporary BCI Exoskeletons", "12"),
+        ("Table 3.1", "UART Binary Telemetry Packet Structure (7-Byte Frame Protocol)", "18"),
+        ("Table 3.2", "ESP32-P4 FreeRTOS Dual-Core Real-Time Task Allocation and Priorities", "19"),
+        ("Table 4.1", "BCI Classifier Performance Summary Metrics Across All Operational Modes", "22"),
+        ("Table 4.2", "Five-Fold Stratified Cross-Validation Results for SWLDA and Workload Models", "22"),
+        ("Table 4.3", "End-to-End Computational Latency Breakdown Against 100 ms Real-Time Budget", "25"),
+        ("Table 5.1", "Qneuro H100 Live Acquisition Session Parameters and Dataset Statistics", "27"),
+        ("Table 5.2", "Real-World Qneuro H100 Headset Performance Summary Matrix (In-Vivo)", "42"),
+        ("Table 6.1", "Comprehensive Verification Matrix Against Initial Project Roadmap Targets", "43"),
+        ("Table A.1", "Detailed Individual Contribution Breakdown (Pardeep Singh vs Aastha Kumari)", "48"),
+        ("Table A.2", "Review Committee and Guide Feedback Incorporation Tracking Matrix", "49"),
+        ("Table C.1", "Consolidated Hardware Procurement Specification and Bill of Materials (BOM)", "55"),
+        ("Table C.2", "ESP32-P4 MCU and PCA9685 Peripheral Hardware Pinout Mapping", "56"),
     ]
     lot_tbl = doc.add_table(rows=0, cols=3)
     lot_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -434,30 +501,30 @@ def create_report():
     # 9. LIST OF FIGURES
     p("LIST OF FIGURES", font_size=16, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=18)
     lof_data = [
-        ("Figure 3.1", "Four-Tier End-to-End System Architecture Block Diagram", "19"),
-        ("Figure 3.2", "Priority Arbitration State Machine and Dwell-Time Safety Flowchart", "27"),
-        ("Figure 4.1", "Power Spectral Density (PSD) Comparison: Raw vs Filtered EEG Signals", "33"),
-        ("Figure 4.2", "P300 ERP Grand Average Waveform for Oddball Target vs Frequent Non-Target", "35"),
-        ("Figure 4.3", "Confusion Matrices Across Primary Classifiers (SWLDA P300 and Workload LDA)", "37"),
-        ("Figure 4.4", "Receiver Operating Characteristic (ROC) and Precision-Recall (PR) Curves", "39"),
-        ("Figure 4.5", "Periauricular Differential EOG Double-Blink Detection and Veto Lockout Trace", "41"),
-        ("Figure 4.6", "STFT Time-Frequency Spectrogram of Temporalis High-Gamma Jaw-Clench Burst", "43"),
-        ("Figure 5.1", "Continuous 8-Ch Qneuro EEG: Raw ADC Values vs Zero-Phase Preprocessed Waveforms", "52"),
-        ("Figure 5.2", "Power Spectral Density Across All Conditions for Frontal and Sensorimotor Channels", "53"),
-        ("Figure 5.3", "STFT Spectrograms: Rest, Jaw Clench, Double Blink, and Hand Clench Signatures", "54"),
-        ("Figure 5.4", "Frontal Differential EOG Double-Blink Calibration with +40.0 \u00b5V Threshold Markers", "56"),
-        ("Figure 5.5", "Temporalis High-Gamma EMG Envelope with +10.5 dB Safety Threshold Calibration", "57"),
-        ("Figure 5.6", "Sensorimotor Mu (8\u201313 Hz) and Beta (14\u201330 Hz) ERD During Active Movements", "58"),
-        ("Figure 5.7", "3-Class Motor Intent Confusion Matrices (LDA: 75.8% vs RF: 87.0%)", "59"),
-        ("Figure 5.8", "5-Class Lateralized Movement Intent Confusion Matrix (RF: 83.8%)", "59"),
-        ("Figure 5.9", "One-vs-Rest ROC Curves (AUC > 0.95) and Precision-Recall Curves", "60"),
-        ("Figure 5.10", "Channel Health Dashboard: DC Offset, RMS Noise, and Lead Status Classification", "61"),
-        ("Figure 5.11", "Gini Feature Importance Ranking of Spatial-Frequency Discriminative Features", "61"),
-        ("Figure 5.12", "Full 229s Real-Time Arbitration Timeline: Cues, Veto Interrupts, UART Commands", "62"),
-        ("Figure 5.13", "Data Acquisition Screenshot: Double-Blink EOG Recording Session", "50"),
-        ("Figure 5.14", "Data Acquisition Screenshot: Jaw-Clench EMG Recording Session", "50"),
-        ("Figure 5.15", "Data Acquisition Screenshot: Left-Hand Motor Execution Recording Session", "51"),
-        ("Figure 5.16", "Data Acquisition Screenshot: Right-Hand Motor Execution Recording Session", "51"),
+        ("Figure 3.1", "Four-Tier End-to-End System Architecture Block Diagram", "13"),
+        ("Figure 3.2", "Priority Arbitration State Machine and Dwell-Time Safety Flowchart", "17"),
+        ("Figure 4.1", "Power Spectral Density (PSD) Comparison: Raw vs Filtered EEG Signals", "20"),
+        ("Figure 4.2", "P300 ERP Grand Average Waveform for Oddball Target vs Frequent Non-Target", "21"),
+        ("Figure 4.3", "Confusion Matrices Across Primary Classifiers (SWLDA P300 and Workload LDA)", "22"),
+        ("Figure 4.4", "Receiver Operating Characteristic (ROC) and Precision-Recall (PR) Curves", "23"),
+        ("Figure 4.5", "Periauricular Differential EOG Double-Blink Detection and Veto Lockout Trace", "24"),
+        ("Figure 4.6", "STFT Time-Frequency Spectrogram of Temporalis High-Gamma Jaw-Clench Burst", "25"),
+        ("Figure 5.1", "Data Acquisition Screenshot: Double-Blink EOG Recording Session", "28"),
+        ("Figure 5.2", "Data Acquisition Screenshot: Jaw-Clench EMG Recording Session", "29"),
+        ("Figure 5.3", "Data Acquisition Screenshot: Left-Hand Motor Execution Recording Session", "30"),
+        ("Figure 5.4", "Data Acquisition Screenshot: Right-Hand Motor Execution Recording Session", "31"),
+        ("Figure 5.5", "Continuous 8-Ch Qneuro EEG: Raw ADC Values vs Zero-Phase Preprocessed Waveforms", "32"),
+        ("Figure 5.6", "Power Spectral Density Across All Conditions for Frontal and Sensorimotor Channels", "33"),
+        ("Figure 5.7", "STFT Spectrograms: Rest, Jaw Clench, Double Blink, and Hand Clench Signatures", "34"),
+        ("Figure 5.8", "Frontal Differential EOG Double-Blink Calibration with +40.0 µV Threshold Markers", "35"),
+        ("Figure 5.9", "Temporalis High-Gamma EMG Envelope with +10.5 dB Safety Threshold Calibration", "35"),
+        ("Figure 5.10", "Sensorimotor Mu (8–13 Hz) and Beta (14–30 Hz) ERD During Active Movements", "36"),
+        ("Figure 5.11", "3-Class Motor Intent Confusion Matrices (LDA: 75.8% vs RF: 87.0%)", "37"),
+        ("Figure 5.12", "5-Class Lateralized Movement Intent Confusion Matrix (RF: 83.8%)", "38"),
+        ("Figure 5.13", "One-vs-Rest ROC Curves (AUC > 0.95) and Precision-Recall Curves", "39"),
+        ("Figure 5.14", "Channel Health Dashboard: DC Offset, RMS Noise, and Lead Status Classification", "40"),
+        ("Figure 5.15", "Gini Feature Importance Ranking of Spatial-Frequency Discriminative Features", "41"),
+        ("Figure 5.16", "Full 229s Real-Time Arbitration Timeline: Cues, Veto Interrupts, UART Commands", "41"),
     ]
     lof_tbl = doc.add_table(rows=0, cols=3)
     lof_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -531,7 +598,16 @@ def create_report():
                 for r in prg.runs:
                     r.font.name = "Times New Roman"
                     r.font.size = Pt(10.5)
-    doc.add_page_break()
+
+    # --- Section 3: Main Body (Chapter 1 to Appendices: decimal 1, 2, 3...) ---
+    sec_body = doc.add_section()
+    configure_section_margins(sec_body)
+    sec_body.different_first_page_header_footer = False
+    sec_body.header.is_linked_to_previous = False
+    sec_body.footer.is_linked_to_previous = False
+    pgNumType_body = parse_xml(r'<w:pgNumType %s w:start="1" w:fmt="decimal"/>' % nsdecls('w'))
+    sec_body._sectPr.append(pgNumType_body)
+    set_section_footer_page_number(sec_body)
 
     # =========================================================================
     # CHAPTER 1: INTRODUCTION
@@ -583,7 +659,7 @@ def create_report():
     p("This project focuses on the computational, electrical, and mechatronic validation of a functional prototype benchtop testbed using synthetic anthropomorphic hand and leg linkages, commercial OpenBCI hardware, the wireless Qneuro H100 NeuroState headset, and standardized public EEG benchmark datasets (PhysioNet eegmmidb, oddball ERP records). It does not encompass human clinical trials with acute stroke patients, which will require formal institutional ethics review board approval and medical-grade electrical isolation certification in future work.")
 
     h2("1.8 Report Organization")
-    p("The remainder of this report is structured as follows: Chapter 2 reviews the state-of-the-art across 17 recent literature publications, highlighting research gaps in cross-limb control. Chapter 3 details the four-tier system architecture, mathematical derivations, and firmware design. Chapter 4 provides extensive experimental results on benchmark datasets, analyzing 8 publication figures, latency budgets, and classification benchmarks. Chapter 5 presents the comprehensive in-vivo validation campaign conducted on the wireless Qneuro H100 headset with 57,250 real human electrophysiological samples, including 12 additional analytical figures. Chapter 6 concludes the report and presents future clinical directions. Appendices document individual member contributions, guide feedback incorporation, source code implementations, and the complete hardware bill of materials.")
+    p("The remainder of this report is structured as follows: Chapter 2 reviews the state-of-the-art across 17 recent literature publications, highlighting research gaps in cross-limb control. Chapter 3 details the four-tier system architecture, mathematical derivations, and firmware design. Chapter 4 provides extensive experimental results on benchmark datasets, analyzing 6 publication figures, latency budgets, and classification benchmarks. Chapter 5 presents the comprehensive in-vivo validation campaign conducted on the wireless Qneuro H100 headset with 57,250 real human electrophysiological samples, including 4 live data acquisition oscilloscope recordings and 12 analytical figures (16 figures total). Chapter 6 concludes the report and presents future clinical directions. Appendices document individual member contributions, guide feedback incorporation, source code implementations, and the complete hardware bill of materials.")
     doc.add_page_break()
 
     # =========================================================================
@@ -616,29 +692,29 @@ def create_report():
     h2("2.6 Multi-Tier Safety Interlocks and Clinical Risk Mitigation")
     p("In a comprehensive survey on exoskeleton safety hazards across 84 clinical centers, Massardi et al. (2023) identified that unintended actuator triggers and failure to stop during patient spasms constitute the highest-risk failure modes. The authors emphasized that pure software BCIs without redundant hardware interlocks are clinically unacceptable. This underscores the necessity of a layered safety architecture where physiological veto mechanisms (e.g. voluntary double-blink EOG) override autonomous controller states.")
 
-    h2("2.7 Literature Synthesis Matrix")
+    h2("2.7 Literature Synthesis Matrix (17 Core Publications)")
     p("Table 2.1 summarizes the 17 core publications reviewed, detailing their biosignal modality, target hardware, classification approach, and limitations.")
 
-    lit_headers = ["Ref", "Author & Year", "Biosignal / Paradigm", "Hardware Platform", "Classifier", "Key Findings & Limitations"]
-    lit_widths = [0.5, 1.3, 1.3, 1.2, 1.0, 1.7]
+    lit_headers = ["S. No.", "Author & Year", "Biosignal / Paradigm", "Hardware Platform", "Classifier", "Key Findings & Limitations"]
+    lit_widths = [0.6, 1.3, 1.3, 1.2, 1.0, 1.6]
     lit_data = [
-        ["[1]", "Zare et al. (2025)", "EEG Motor Imagery", "Soft Robotic Glove", "CNN / SVM", "84.2% MI accuracy; relies on 32-ch wet scalp cap."],
-        ["[2]", "Araujo et al. (2021)", "EEG Motor Imagery", "HERO Hand Exoskeleton", "LDA", "Low-cost textile 3D print; long setup time (>30 min)."],
-        ["[3]", "Triwiyanto (2023)", "IMU Wireless", "Hand Exoskeleton", "Rule-based", "Bilateral sync; lacks neural intention decoding."],
-        ["[4]", "Triwiyanto (2025)", "FSR Force Sensor", "Upper Limb Exoskeleton", "Thresholding", "Effective grip control; purely mechanical trigger."],
-        ["[5]", "Knierim et al. (2021)", "16-ch cEEGrid EEG", "OpenBCI Cyton+Daisy", "Benchmark PSD", "Validated around-the-ear feasibility; no exoskeleton."],
-        ["[6]", "Knierim et al. (2022)", "cEEGrid Adapter", "HardwareX OpenBCI", "Hardware Spec", "Open adapter design; lacks classifier integration."],
-        ["[7]", "Eidel et al. (2024)", "Tactile P300 ERP", "cEEGrid Temporal", "SWLDA", "63-68% P300 accuracy around ear; proved ERP viability."],
-        ["[8]", "Sieghartsleitner (2024)", "Upper & Lower BCI", "recoveriX Commercial", "CSP + LDA", "Proved sequential cross-limb recovery; $40k+ cost."],
-        ["[9]", "Zhao et al. (2024)", "EEG Motor Imagery", "CTNet Transformer", "Conv-Transformer", "91.2% accuracy; too heavy for low-power edge MCU."],
-        ["[10]", "Zhu et al. (2020)", "Hybrid SSVEP + EOG", "Robotic Manipulator", "CCA + Threshold", "Proved multimodal reliability; visual flicker fatigue."],
-        ["[11]", "King et al. (2025)", "earEOG Periauricular", "Headphone Prototype", "Dipole Tracking", "Validated ocular veto in ear footprint; Nature 2025."],
-        ["[12]", "Massardi et al. (2023)", "Hazard Analysis", "Exoskeleton Survey", "Risk Assessment", "Emphasized critical need for redundant hard E-stops."],
-        ["[13]", "Park et al. (2025)", "Systematic Review", "Upper Limb Robots", "Meta-Analysis", "Proved active neural intent essential for FMA recovery."],
-        ["[14]", "Yedukondalu (2024)", "Cognitive Load EEG", "Bi-LSTM / LDA", "Time-Frequency", "Alpha power tracks mental fatigue; high compute."],
-        ["[15]", "De la Cruz (2025)", "EEG Spatiotemporal", "Hand Exoskeleton", "CSP + SVM", "Validated MI trajectory; requires central C3/C4 leads."],
-        ["[16]", "Ma et al. (2024)", "Lower Limb BCI", "Gait Exoskeleton", "Attention MI", "Discrete state transitions essential for leg stability."],
-        ["[17]", "Wang et al. (2023)", "Digital Twin Exoskeleton", "Lower Limb Robotics", "State Machine", "Digital twin monitoring; no lightweight around-ear EEG."],
+        ["1", "Zare et al. (2025)", "EEG Motor Imagery", "Soft Robotic Glove", "CNN / SVM", "84.2% MI accuracy; relies on 32-ch wet scalp cap."],
+        ["2", "Araujo et al. (2021)", "EEG Motor Imagery", "HERO Hand Exoskeleton", "LDA", "Low-cost textile 3D print; long setup time (>30 min)."],
+        ["3", "Triwiyanto (2023)", "IMU Wireless", "Hand Exoskeleton", "Rule-based", "Bilateral sync; lacks neural intention decoding."],
+        ["4", "Triwiyanto (2025)", "FSR Force Sensor", "Upper Limb Exoskeleton", "Thresholding", "Effective grip control; purely mechanical trigger."],
+        ["5", "Knierim et al. (2021)", "16-ch cEEGrid EEG", "OpenBCI Cyton+Daisy", "Benchmark PSD", "Validated around-the-ear feasibility; no exoskeleton."],
+        ["6", "Knierim et al. (2022)", "cEEGrid Adapter", "HardwareX OpenBCI", "Hardware Spec", "Open adapter design; lacks classifier integration."],
+        ["7", "Eidel et al. (2024)", "Tactile P300 ERP", "cEEGrid Temporal", "SWLDA", "63-68% P300 accuracy around ear; proved ERP viability."],
+        ["8", "Sieghartsleitner (2024)", "Upper & Lower BCI", "recoveriX Commercial", "CSP + LDA", "Proved sequential cross-limb recovery; $40k+ cost."],
+        ["9", "Zhao et al. (2024)", "EEG Motor Imagery", "CTNet Transformer", "Conv-Transformer", "91.2% accuracy; too heavy for low-power edge MCU."],
+        ["10", "Zhu et al. (2020)", "Hybrid SSVEP + EOG", "Robotic Manipulator", "CCA + Threshold", "Proved multimodal reliability; visual flicker fatigue."],
+        ["11", "King et al. (2025)", "earEOG Periauricular", "Headphone Prototype", "Dipole Tracking", "Validated ocular veto in ear footprint; Nature 2025."],
+        ["12", "Massardi et al. (2023)", "Hazard Analysis", "Exoskeleton Survey", "Risk Assessment", "Emphasized critical need for redundant hard E-stops."],
+        ["13", "Park et al. (2025)", "Systematic Review", "Upper Limb Robots", "Meta-Analysis", "Proved active neural intent essential for FMA recovery."],
+        ["14", "Yedukondalu (2024)", "Cognitive Load EEG", "Bi-LSTM / LDA", "Time-Frequency", "Alpha power tracks mental fatigue; high compute."],
+        ["15", "De la Cruz (2025)", "EEG Spatiotemporal", "Hand Exoskeleton", "CSP + SVM", "Validated MI trajectory; requires central C3/C4 leads."],
+        ["16", "Ma et al. (2024)", "Lower Limb BCI", "Gait Exoskeleton", "Attention MI", "Discrete state transitions essential for leg stability."],
+        ["17", "Wang et al. (2023)", "Digital Twin Exoskeleton", "Lower Limb Robotics", "State Machine", "Digital twin monitoring; no lightweight around-ear EEG."],
     ]
     tbl_lit = doc.add_table(rows=1, cols=6)
     format_table(tbl_lit, lit_widths, lit_headers, lit_data)
@@ -670,6 +746,8 @@ def create_report():
 
     h2("3.1 Four-Tier System Architecture Overview")
     p("To address the research gaps, the proposed system implements an end-to-end, four-tier hardware and software architecture designed for deterministic real-time operation, low compute overhead, and high safety.")
+    add_img("fig_3_1_system_architecture.png", "Figure 3.1: Four-Tier End-to-End System Architecture Block Diagram")
+    p("Figure 3.1 delineates the functional demarcation and bidirectional telemetry flow across all four operational tiers:")
     p("\u2022 Tier 1 (Biosignal Acquisition): 16-channel periauricular electrode array (cEEGrid) interfaced to an OpenBCI Cyton+Daisy biosensing board streaming raw 250 Hz data over BLE/USB serial via the BrainFlow API. Additionally, the wireless 8-channel Qneuro H100 NeuroState headset is supported via Bluetooth RFCOMM SPP direct socket parsing and Lab Streaming Layer (LSL) integration.", space_after=3)
     p("\u2022 Tier 2 (Edge Host Processing): NVIDIA Jetson Orin Nano executing digital filtering, four parallel feature extractors, SWLDA inference, and safety arbitration within a 10 Hz real-time loop (100 ms budget).", space_after=3)
     p("\u2022 Tier 3 (Real-Time Actuation Control): ESP32-P4 dual-core RISC-V microcontroller receiving binary UART telemetry, validating CRC-8 checksums, and scheduling FreeRTOS motor control tasks.", space_after=3)
@@ -710,7 +788,9 @@ def create_report():
     p("For edge deployment on the Jetson Orin Nano, the trained SWLDA model is exported into a lightweight JSON configuration (models/edge_swlda_weights.json) containing the sparse weight vector w, scalar intercept b, and selected indices. Real-time inference on the Jetson reduces to a single vectorized dot-product: logit = w\u1d40\u00b7x_sel + b, P(Target) = 1/(1 + e^(-logit)). This evaluation executes in under 50 microseconds on the ARM Cortex-A78AE core, completely decoupled from heavy machine learning frameworks.")
 
     h2("3.6 Priority Arbitrator and Safety State Machine")
-    p("To eliminate conflicting commands and ensure clinical safety, the Arbitrator enforces a strict five-level priority cascade:")
+    p("To eliminate conflicting commands and ensure clinical safety, the Arbitrator enforces a strict five-level priority cascade.")
+    add_img("fig_3_2_arbitration_flowchart.png", "Figure 3.2: Priority Arbitration State Machine and Dwell-Time Safety Flowchart")
+    p("Figure 3.2 details the operational decision flow and dwell-time confirmation logic executed on every 100 ms inference frame:")
     p("\u2022 Priority 1 (Highest): EOG Double-Blink Veto \u2192 Immediate Emergency Stop (0x99) packet dispatch, instant motor cutoff, and a 500 ms lockout period.", space_after=3)
     p("\u2022 Priority 2: Temporalis Jaw-Clench Burst \u2192 Command Hand Close (0x20). Requires 300 ms dwell-time confirmation.", space_after=3)
     p("\u2022 Priority 2.5: Leg Motor Intent \u2192 Command Leg Step Forward (0x30). Routes to Leg Module (0x02). Requires 300 ms dwell confirmation.", space_after=3)
@@ -874,68 +954,68 @@ def create_report():
     format_table(tbl_acq, acq_widths, acq_headers, acq_data)
     add_caption(doc, "Table 5.1: Qneuro H100 Live Acquisition Session Parameters and Dataset Statistics", is_table=True)
 
-    p("Figures 5.13\u20135.16 present screenshots captured during the live data acquisition session, showing the real-time oscilloscope display during double-blink, jaw-clench, left-hand, and right-hand motor execution trials respectively.")
-    add_screenshot("double_blink.png", "Figure 5.13: Data Acquisition Screenshot \u2014 Double-Blink EOG Recording Session (real-time 8-channel oscilloscope view showing characteristic biphasic frontal dipole deflections during voluntary rapid double-blink execution)")
-    add_screenshot("jaw_clench.png", "Figure 5.14: Data Acquisition Screenshot \u2014 Jaw-Clench EMG Recording Session (real-time oscilloscope view showing high-amplitude temporalis EMG bursts during sustained isometric mandible clenching)")
-    add_screenshot("left_hand.png", "Figure 5.15: Data Acquisition Screenshot \u2014 Left-Hand Motor Execution Recording Session (real-time oscilloscope view during voluntary left-hand clenching showing sensorimotor rhythm modulation)")
-    add_screenshot("right_hand.png", "Figure 5.16: Data Acquisition Screenshot \u2014 Right-Hand Motor Execution Recording Session (real-time oscilloscope view during voluntary right-hand clenching with contralateral sensorimotor desynchronization)")
+    p("Figures 5.1–5.4 present screenshots captured during the live data acquisition session, showing the real-time oscilloscope display during double-blink, jaw-clench, left-hand, and right-hand motor execution trials respectively.")
+    add_screenshot("double_blink.png", "Figure 5.1: Data Acquisition Screenshot — Double-Blink EOG Recording Session (real-time 8-channel oscilloscope view showing characteristic biphasic frontal dipole deflections during voluntary rapid double-blink execution)")
+    add_screenshot("jaw_clench.png", "Figure 5.2: Data Acquisition Screenshot — Jaw-Clench EMG Recording Session (real-time oscilloscope view showing high-amplitude temporalis EMG bursts during sustained isometric mandible clenching)")
+    add_screenshot("left_hand.png", "Figure 5.3: Data Acquisition Screenshot — Left-Hand Motor Execution Recording Session (real-time oscilloscope view during voluntary left-hand clenching showing sensorimotor rhythm modulation)")
+    add_screenshot("right_hand.png", "Figure 5.4: Data Acquisition Screenshot — Right-Hand Motor Execution Recording Session (real-time oscilloscope view during voluntary right-hand clenching with contralateral sensorimotor desynchronization)")
 
     h2("5.2 Continuous Multi-Channel Signal Conditioning")
-    p("The raw 24-bit ADS1299 ADC output exhibited positive DC offsets (~1,070\u20131,260 \u00b5V) on physiological channels (Channels 1\u20135). The 4th-order Butterworth bandpass filter (0.5\u201345 Hz) and 50 Hz notch filter completely suppressed DC bias and ambient AC interference without temporal distortion. Figure 5.1 presents the continuous 8-channel comparison between raw and preprocessed waveforms.")
-    add_img("fig_5_1_qneuro_raw_vs_filtered_traces.png", "Figure 5.1: Continuous 8-Channel EEG Comparison Showing Raw ADC Values (Left) and Zero-Phase Preprocessed Waveforms (Right)")
-    p("The preprocessed traces reveal clean electrophysiological oscillations in the 0.5\u201345 Hz passband on Channels 1\u20135, while Channels 6\u20138 show high-impedance noise floors consistent with poor electrode-skin contact. The SignalQualityMonitor module correctly identified these channels for automatic exclusion from downstream feature extraction, preventing contamination of the classification pipeline.")
+    p("The raw 24-bit ADS1299 ADC output exhibited positive DC offsets (~1,070–1,260 µV) on physiological channels (Channels 1–5). The 4th-order Butterworth bandpass filter (0.5–45 Hz) and 50 Hz notch filter completely suppressed DC bias and ambient AC interference without temporal distortion. Figure 5.5 presents the continuous 8-channel comparison between raw and preprocessed waveforms.")
+    add_img("fig_5_1_qneuro_raw_vs_filtered_traces.png", "Figure 5.5: Continuous 8-Channel EEG Comparison Showing Raw ADC Values (Left) and Zero-Phase Preprocessed Waveforms (Right)")
+    p("The preprocessed traces reveal clean electrophysiological oscillations in the 0.5–45 Hz passband on Channels 1–5, while Channels 6–8 show high-impedance noise floors consistent with poor electrode-skin contact. The SignalQualityMonitor module correctly identified these channels for automatic exclusion from downstream feature extraction, preventing contamination of the classification pipeline.")
 
     h2("5.3 Spectral Power and Time-Frequency Signatures")
     p("Power spectral density (PSD) and STFT spectrograms across all 6 active conditions revealed clear physiological modulation unique to each motor paradigm:")
-    p("\u2022 Temporalis Jaw Clench: Exhibited a massive spectral power surge (>20 dB elevation) across the 30\u201345 Hz high-gamma EMG band, with peak energy concentrated on temporal electrodes (Channels 1\u20132).", space_after=3)
+    p("\u2022 Temporalis Jaw Clench: Exhibited a massive spectral power surge (>20 dB elevation) across the 30–45 Hz high-gamma EMG band, with peak energy concentrated on temporal electrodes (Channels 1–2).", space_after=3)
     p("\u2022 Frontal Double Blink: Produced distinct low-frequency (<5 Hz) biphasic potential shifts characteristic of corneal-retinal dipole rotation, cleanly separable from EEG background activity.", space_after=3)
-    p("\u2022 Motor Execution (Hand/Leg): Showed Event-Related Desynchronization (ERD) in sensorimotor Mu (8\u201313 Hz) and Beta (14\u201330 Hz) bands over central channels (Channels 3\u20134), consistent with Penfield\u2019s motor homunculus somatotopic organization.", space_after=6)
-    add_img("fig_5_2_qneuro_psd_by_condition.png", "Figure 5.2: Power Spectral Density Across Experimental Conditions for Frontal/Temporal (Left) and Central Sensorimotor (Right) Channels")
-    add_img("fig_5_3_qneuro_time_frequency_spectrograms.png", "Figure 5.3: Multi-Panel STFT Spectrograms Demonstrating Distinct Spectral Signatures for Rest, Jaw Clench, Double Blink, and Hand Clench Conditions")
-    p("The STFT analysis (N_perseg = 128, N_overlap = 96) clearly delineates the temporal evolution of spectral power across each condition window. Rest epochs show uniform low-power baseline across all frequencies. Jaw-clench epochs display intense broadband 30\u201345 Hz activation confined to the temporal channels. Double-blink epochs produce transient low-frequency bursts (<5 Hz) at blink onset. Hand and leg movement epochs exhibit sustained Mu/Beta suppression patterns consistent with motor cortical engagement.")
+    p("\u2022 Motor Execution (Hand/Leg): Showed Event-Related Desynchronization (ERD) in sensorimotor Mu (8–13 Hz) and Beta (14–30 Hz) bands over central channels (Channels 3–4), consistent with Penfield’s motor homunculus somatotopic organization.", space_after=6)
+    add_img("fig_5_2_qneuro_psd_by_condition.png", "Figure 5.6: Power Spectral Density Across Experimental Conditions for Frontal/Temporal (Left) and Central Sensorimotor (Right) Channels")
+    add_img("fig_5_3_qneuro_time_frequency_spectrograms.png", "Figure 5.7: Multi-Panel STFT Spectrograms Demonstrating Distinct Spectral Signatures for Rest, Jaw Clench, Double Blink, and Hand Clench Conditions")
+    p("The STFT analysis (N_perseg = 128, N_overlap = 96) clearly delineates the temporal evolution of spectral power across each condition window. Rest epochs show uniform low-power baseline across all frequencies. Jaw-clench epochs display intense broadband 30–45 Hz activation confined to the temporal channels. Double-blink epochs produce transient low-frequency bursts (<5 Hz) at blink onset. Hand and leg movement epochs exhibit sustained Mu/Beta suppression patterns consistent with motor cortical engagement.")
 
     h2("5.4 Veto and Safety Interrupt Calibration on Headset Montage")
     p("Empirical threshold tuning on participant data demonstrated clean artifact separation for both safety-critical biosignal channels:")
 
     h3("5.4.1 EOG Double-Blink Emergency Veto (Priority 1)")
-    p("The differential montage (EEG_1 \u2013 EEG_2) established an optimal threshold of +40.0 \u00b5V, yielding 100% true positive blink detection with zero false activations during resting baseline. This represents a significant improvement over the benchmark threshold of +80.0 \u00b5V used in Chapter 4, attributable to the closer electrode proximity to the ocular dipole source in the Qneuro H100 montage.")
-    add_img("fig_5_4_qneuro_eog_double_blink_calibration.png", "Figure 5.4: Continuous Differential EOG Trace (Top) and Zoomed Dual-Peak Blink Waveform with +40.0 \u00b5V Threshold Markers (Bottom)")
+    p("The differential montage (EEG_1 – EEG_2) established an optimal threshold of +40.0 µV, yielding 100% true positive blink detection with zero false activations during resting baseline. This represents a significant improvement over the benchmark threshold of +80.0 µV used in Chapter 4, attributable to the closer electrode proximity to the ocular dipole source in the Qneuro H100 montage.")
+    add_img("fig_5_4_qneuro_eog_double_blink_calibration.png", "Figure 5.8: Continuous Differential EOG Trace (Top) and Zoomed Dual-Peak Blink Waveform with +40.0 µV Threshold Markers (Bottom)")
 
     h3("5.4.2 Temporalis EMG Jaw-Clench Safety Interrupt (Priority 2)")
-    p("The high-gamma envelope achieved complete separation with a +10.5 dB threshold, producing 100% sensitivity and 0.0% false alarm rate over the entire 229-second recording session. The probability density distribution (Figure 5.5, bottom panel) demonstrates an unambiguous bimodal separation between resting and clench-active gamma power, with no overlapping tails.")
-    add_img("fig_5_5_qneuro_jaw_clench_emg_calibration.png", "Figure 5.5: Continuous High-Gamma Envelope (Top) and Probability Density Distribution (Bottom) Showing Unambiguous Separation Between Rest and Jaw Clench States")
+    p("The high-gamma envelope achieved complete separation with a +10.5 dB threshold, producing 100% sensitivity and 0.0% false alarm rate over the entire 229-second recording session. The probability density distribution (Figure 5.9, bottom panel) demonstrates an unambiguous bimodal separation between resting and clench-active gamma power, with no overlapping tails.")
+    add_img("fig_5_5_qneuro_jaw_clench_emg_calibration.png", "Figure 5.9: Continuous High-Gamma Envelope (Top) and Probability Density Distribution (Bottom) Showing Unambiguous Separation Between Rest and Jaw Clench States")
 
     h2("5.5 Sensorimotor Rhythm ERD and Multi-Class Movement Classification")
-    p("Evaluation of sensorimotor Mu (8\u201313 Hz) and Beta (14\u201330 Hz) bands confirmed robust Event-Related Desynchronization during active upper and lower limb movements. Figure 5.6 presents the distribution of Mu and Beta power across all 5 motor conditions, demonstrating significant power suppression during Hand Clench and Leg Extension compared to resting baseline.")
-    add_img("fig_5_6_qneuro_sensorimotor_mu_beta_erd.png", "Figure 5.6: Distribution of Sensorimotor Mu (8\u201313 Hz) and Beta (14\u201330 Hz) Power Showing Significant Suppression (ERD) During Hand Clench and Leg Extension vs. Rest")
-    p("The ERD profiles reveal that hand movements produce greater desynchronization (\u22124.2 dB median Mu ERD) on lateral periauricular electrodes than leg movements (\u22123.4 dB median Mu ERD), consistent with Penfield\u2019s motor homunculus where hand representation is located on the lateral convexity of M1 closer to the ears, whereas leg representation is mesial in the interhemispheric fissure. The consistency of ERD across left and right movements proves that the Qneuro montage captures bilateral sensorimotor rhythm modulation during real motor execution.")
+    p("Evaluation of sensorimotor Mu (8–13 Hz) and Beta (14–30 Hz) bands confirmed robust Event-Related Desynchronization during active upper and lower limb movements. Figure 5.10 presents the distribution of Mu and Beta power across all 5 motor conditions, demonstrating significant power suppression during Hand Clench and Leg Extension compared to resting baseline.")
+    add_img("fig_5_6_qneuro_sensorimotor_mu_beta_erd.png", "Figure 5.10: Distribution of Sensorimotor Mu (8–13 Hz) and Beta (14–30 Hz) Power Showing Significant Suppression (ERD) During Hand Clench and Leg Extension vs. Rest")
+    p("The ERD profiles reveal that hand movements produce greater desynchronization (\u22124.2 dB median Mu ERD) on lateral periauricular electrodes than leg movements (\u22123.4 dB median Mu ERD), consistent with Penfield’s motor homunculus where hand representation is located on the lateral convexity of M1 closer to the ears, whereas leg representation is mesial in the interhemispheric fissure. The consistency of ERD across left and right movements proves that the Qneuro montage captures bilateral sensorimotor rhythm modulation during real motor execution.")
 
     p("Using 5-fold stratified cross-validation on sliding 1.5-second windows (524 augmented epochs), the following classification results were obtained:")
 
     h3("5.5.1 Three-Class Movement Intent (REST vs. HAND CLENCH vs. LEG EXTENSION)")
     p("\u2022 Linear Discriminant Analysis (LDA): 75.8% accuracy (Macro F1 = 0.724, Chance = 33.3%)", space_after=3)
     p("\u2022 Random Forest Ensemble: 87.0% accuracy (Macro F1 = 0.841, Chance = 33.3%)", space_after=6)
-    add_img("fig_5_7_qneuro_motor_intent_confusion_matrices.png", "Figure 5.7: 3-Class Movement Intent Confusion Matrices for LDA (Left, 75.8%) and Random Forest (Right, 87.0%) Across 5-Fold Cross-Validation")
+    add_img("fig_5_7_qneuro_motor_intent_confusion_matrices.png", "Figure 5.11: 3-Class Movement Intent Confusion Matrices for LDA (Left, 75.8%) and Random Forest (Right, 87.0%) Across 5-Fold Cross-Validation")
 
     h3("5.5.2 Five-Class Lateralized Movement Intent (REST vs. L-HAND vs. R-HAND vs. L-LEG vs. R-LEG)")
-    p("\u2022 Random Forest: 83.8% accuracy (Cohen\u2019s \u03ba = 0.771, Chance = 20.0%)")
-    add_img("fig_5_8_qneuro_lateralized_5class_confusion_matrix.png", "Figure 5.8: 5-Class Lateralized Confusion Matrix Demonstrating Strong Diagonal Dominance Across Upper and Lower Limb Motions (Random Forest, 83.8% Accuracy)")
+    p("\u2022 Random Forest: 83.8% accuracy (Cohen’s \u03ba = 0.771, Chance = 20.0%)")
+    add_img("fig_5_8_qneuro_lateralized_5class_confusion_matrix.png", "Figure 5.12: 5-Class Lateralized Confusion Matrix Demonstrating Strong Diagonal Dominance Across Upper and Lower Limb Motions (Random Forest, 83.8% Accuracy)")
 
-    p("The confusion matrices demonstrate strong diagonal dominance across all classes, with Hand classes achieving the highest per-class accuracy (>90%) and Leg classes showing moderate but clinically meaningful separability (>78%). Rest is discriminated with near-perfect accuracy, confirming the classifier\u2019s ability to reliably distinguish voluntary motor engagement from idle resting state.")
+    p("The confusion matrices demonstrate strong diagonal dominance across all classes, with Hand classes achieving the highest per-class accuracy (>90%) and Leg classes showing moderate but clinically meaningful separability (>78%). Rest is discriminated with near-perfect accuracy, confirming the classifier’s ability to reliably distinguish voluntary motor engagement from idle resting state.")
 
-    add_img("fig_5_9_qneuro_roc_and_pr_curves.png", "Figure 5.9: One-vs-Rest ROC Curves (AUC > 0.95 Across All Classes) and Precision-Recall Curves for Movement Intent Classification")
-    p("The One-vs-Rest ROC analysis (Figure 5.9) confirms AUC values exceeding 0.95 across all 3 movement classes, demonstrating that the Random Forest classifier achieves excellent discriminative separation even under the demanding real-world wireless acquisition conditions of the Qneuro H100 headset.")
+    add_img("fig_5_9_qneuro_roc_and_pr_curves.png", "Figure 5.13: One-vs-Rest ROC Curves (AUC > 0.95 Across All Classes) and Precision-Recall Curves for Movement Intent Classification")
+    p("The One-vs-Rest ROC analysis (Figure 5.13) confirms AUC values exceeding 0.95 across all 3 movement classes, demonstrating that the Random Forest classifier achieves excellent discriminative separation even under the demanding real-world wireless acquisition conditions of the Qneuro H100 headset.")
 
     h2("5.6 Channel Quality Diagnostics and Feature Importance")
-    p("Automated Signal Quality Monitoring (SQM) accurately identified Channels 1\u20135 as optimal physiological channels while isolating high-impedance drift on Channels 6\u20138. The channel health dashboard (Figure 5.10) presents DC offset, RMS noise floor, and health classification across all 8 Qneuro channels, providing objective justification for channel selection decisions.")
-    add_img("fig_5_10_qneuro_channel_quality_dashboard.png", "Figure 5.10: Electrode DC Offset, RMS Noise Floor, and Health Classification Matrix Across All 8 Qneuro Channels")
+    p("Automated Signal Quality Monitoring (SQM) accurately identified Channels 1–5 as optimal physiological channels while isolating high-impedance drift on Channels 6–8. The channel health dashboard (Figure 5.14) presents DC offset, RMS noise floor, and health classification across all 8 Qneuro channels, providing objective justification for channel selection decisions.")
+    add_img("fig_5_10_qneuro_channel_quality_dashboard.png", "Figure 5.14: Electrode DC Offset, RMS Noise Floor, and Health Classification Matrix Across All 8 Qneuro Channels")
 
-    p("Gini feature importance analysis from the trained Random Forest classifier confirmed that central sensorimotor Beta and Mu power contributed over 68% of the total discriminative information. Figure 5.11 presents the top 12 spatial-frequency features ranked by relative Gini importance, demonstrating that Channels 3\u20134 (central sensorimotor position) in the Mu and Beta frequency bands provide the primary discriminative substrate for motor intent classification.")
-    add_img("fig_5_11_qneuro_feature_importance_weights.png", "Figure 5.11: Top 12 Spatial-Frequency Features Ranked by Relative Gini Importance (Sensorimotor Beta and Mu Power Contributing >68% Total Weight)")
+    p("Gini feature importance analysis from the trained Random Forest classifier confirmed that central sensorimotor Beta and Mu power contributed over 68% of the total discriminative information. Figure 5.15 presents the top 12 spatial-frequency features ranked by relative Gini importance, demonstrating that Channels 3–4 (central sensorimotor position) in the Mu and Beta frequency bands provide the primary discriminative substrate for motor intent classification.")
+    add_img("fig_5_11_qneuro_feature_importance_weights.png", "Figure 5.15: Top 12 Spatial-Frequency Features Ranked by Relative Gini Importance (Sensorimotor Beta and Mu Power Contributing >68% Total Weight)")
 
     h2("5.7 Real-Time Actuator Arbitration Progression")
-    p("Tracing the full 229-second session through the multi-tier Arbitrator demonstrated zero false activations, immediate safety lockout during blinks and clenches, and synchronized dispatch of Arm (0x01, 0x30) and Leg (0x02, 0x30) UART command packets. Figure 5.12 presents the complete arbitration state trajectory including ground truth stimulus cues, detected safety interrupts, classified motor intents, and the resulting actuator UART command stream.")
-    add_img("fig_5_12_qneuro_full_session_arbitration_timeline.png", "Figure 5.12: Full 229-Second Real-Time Arbitration Timeline Showing Ground Truth Cues (Top), Safety Interrupts (Middle), and Dispatched UART Actuator Commands (Bottom)")
+    p("Tracing the full 229-second session through the multi-tier Arbitrator demonstrated zero false activations, immediate safety lockout during blinks and clenches, and synchronized dispatch of Arm (0x01, 0x30) and Leg (0x02, 0x30) UART command packets. Figure 5.16 presents the complete arbitration state trajectory including ground truth stimulus cues, detected safety interrupts, classified motor intents, and the resulting actuator UART command stream.")
+    add_img("fig_5_12_qneuro_full_session_arbitration_timeline.png", "Figure 5.16: Full 229-Second Real-Time Arbitration Timeline Showing Ground Truth Cues (Top), Safety Interrupts (Middle), and Dispatched UART Actuator Commands (Bottom)")
     p("The timeline demonstrates that: (1) all double-blink veto events are immediately detected and produce E-Stop packets (0x99) with 500 ms lockout; (2) jaw-clench bursts correctly trigger Hand Close commands (0x20) after 300 ms dwell confirmation; (3) motor intent classifications correctly route to appropriate limb modules (Hand = 0x01, Leg = 0x02); and (4) rest periods produce zero spurious actuator commands, confirming the safety and reliability of the arbitration engine under real-world conditions.")
 
     h2("5.8 In-Vivo Performance Summary Matrix")
@@ -1084,8 +1164,8 @@ def create_report():
         ["Guide Advisory 1", "Real-time communication to ESP32 must be fail-safe; plain text serial will corrupt.", "Designed a fixed 7-byte binary UART protocol with sync header (0xAA) and CRC-8/MAXIM checksum. Added timeout retries (3x) and automatic motor hold.", "Section 3.7\nTable 3.1\nAppendix B.2"],
         ["Guide Advisory 2", "Safety is critical; what stops accidental motor actuation during user coughing or blinking?", "Implemented a stateful 5-tier Arbitrator with a 300 ms dwell-time confirmation filter. Added periauricular double-blink veto cutoff (< 15 ms latency) that locks out motors for 500 ms.", "Section 3.6\nSection 4.5\nFigure 4.5\nSection 4.8"],
         ["Interim Review", "Demonstrate edge deployment viability on Jetson Orin Nano; avoid heavy Python libraries.", "Decoupled edge execution from sklearn/mne. Exported sparse linear weights to JSON; edge runner executes inference via raw numpy dot-product in < 50 microseconds.", "Section 3.5\nSection 4.7\nTable 4.3\nAppendix B.1"],
-        ["Live Demo Review", "Show real human data, not just benchmark datasets. Validate on actual wireless headset.", "Conducted complete in-vivo validation campaign with Qneuro H100 headset. Recorded 57,250 samples from human participant. Generated 12 new analytical figures (Figs 5.1\u20135.12). Achieved 87.0% motor intent accuracy.", "Chapter 5\nFigs 5.1\u20135.16\nTable 5.1\u20135.2"],
-        ["Report Rubric Review", "Ensure comprehensive visual analysis, complete APA citations, and individual contributions.", "Generated 18 publication-grade 300-DPI analytical figures + 4 acquisition screenshots, compiled all references in APA 7th format, and created dedicated appendix mapping for rubric compliance.", "Chapters 1-6\nAppendix A\nAppendix B"],
+        ["Live Demo Review", "Show real human data, not just benchmark datasets. Validate on actual wireless headset.", "Conducted complete in-vivo validation campaign with Qneuro H100 headset. Recorded 57,250 samples from human participant. Generated 12 new analytical figures (Figs 5.5–5.16) and 4 acquisition screenshots (Figs 5.1–5.4). Achieved 87.0% motor intent accuracy.", "Chapter 5\nFigs 5.1–5.16\nTable 5.1–5.2"],
+        ["Report Rubric Review", "Ensure comprehensive visual analysis, complete APA citations, and individual contributions.", "Generated 20 publication-grade 300-DPI analytical figures + 4 acquisition screenshots (24 figures total), compiled all references in APA 7th format, and created dedicated appendix mapping for rubric compliance.", "Chapters 1-6\nAppendix A\nAppendix B"],
     ]
     tbl_gf = doc.add_table(rows=1, cols=4)
     format_table(tbl_gf, gf_widths, gf_headers, gf_data)
@@ -1115,8 +1195,7 @@ def create_report():
         "        prob = 1.0 / (1.0 + np.exp(-logit))\n"
         "        return prob, (prob >= self.p300_thresh)"
     )
-    p_ce = p(code_edge, font_size=9.5, align=WD_ALIGN_PARAGRAPH.LEFT, line_spacing=1.0)
-    p_ce.paragraph_format.left_indent = Inches(0.4)
+    add_code_block(code_edge)
 
     h2("B.2 Binary Packet Encoder and CRC-8/MAXIM Checksum")
     p("Source: src/communication/packet_encoder.py:")
@@ -1141,8 +1220,7 @@ def create_report():
         "        crc = compute_crc8_maxim(payload)\n"
         "        return payload + bytes([crc])"
     )
-    p_cp = p(code_pkt, font_size=9.5, align=WD_ALIGN_PARAGRAPH.LEFT, line_spacing=1.0)
-    p_cp.paragraph_format.left_indent = Inches(0.4)
+    add_code_block(code_pkt)
 
     h2("B.3 Qneuro H100 Bluetooth SPP Pipeline Parser")
     p("Source: src/acquisition/qneuro_pipeline.py (Key extraction loop):")
@@ -1162,8 +1240,7 @@ def create_report():
         "            eeg_samples.append(voltage_uv)\n"
         "        return {'eeg': eeg_samples, 'timestamp': time.time()}"
     )
-    p_cq = p(code_qneuro, font_size=9.5, align=WD_ALIGN_PARAGRAPH.LEFT, line_spacing=1.0)
-    p_cq.paragraph_format.left_indent = Inches(0.4)
+    add_code_block(code_qneuro)
 
     h2("B.4 5-Tier Priority Arbitrator State Machine")
     p("Source: src/communication/arbitrator.py (Priority cascade logic):")
@@ -1187,8 +1264,7 @@ def create_report():
         "                    return self._dispatch(signal_name), signal_name\n"
         "        return None, 'IDLE'"
     )
-    p_ca = p(code_arb, font_size=9.5, align=WD_ALIGN_PARAGRAPH.LEFT, line_spacing=1.0)
-    p_ca.paragraph_format.left_indent = Inches(0.4)
+    add_code_block(code_arb)
     doc.add_page_break()
 
     # APPENDIX C: HARDWARE BILL OF MATERIALS & PIN MAPPINGS
@@ -1239,7 +1315,7 @@ def create_report():
     fsize = os.path.getsize(OUT_FILE)
     print(f"\u2713 Report successfully generated: {OUT_FILE}")
     print(f"  File size: {fsize / 1024:.1f} KB ({fsize / (1024*1024):.2f} MB)")
-    print(f"\n  Figures included: 18 analytical figures + 4 data acquisition screenshots")
+    print(f"\n  Figures included: 20 analytical figures + 4 data acquisition screenshots (24 figures total)")
     print(f"  Chapters: 6 (Introduction, Literature, Methodology, Benchmark Results, In-Vivo Validation, Conclusion)")
     print(f"  Tables: 14")
     print(f"  References: {len(refs)} (APA 7th format)")
