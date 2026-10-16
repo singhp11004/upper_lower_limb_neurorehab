@@ -6,7 +6,7 @@ Course: BCSE497J Project-I, VIT Chennai
 Authors: Pardeep Singh (23BRS1123), Aastha Kumari (23BRS1040)
 
 This NEW version incorporates:
-  - All 8 benchmark figures (Fig 4.1 – 4.8)
+  - Core benchmark figures (Fig 4.1 – 4.6)
   - All 12 Qneuro H100 in-vivo validation figures (Fig 5.1 – 5.12)
   - 4 data acquisition screenshots (double_blink, jaw_clench, left_hand, right_hand)
   - Expanded Chapter 5: In-Vivo Validation on Qneuro H100 Headset
@@ -341,7 +341,7 @@ def create_report():
         ("  4.4 Discriminative Power: ROC and Precision-Recall Curves", "38"),
         ("  4.5 Safety Interlock: Periauricular EOG Double-Blink Veto", "40"),
         ("  4.6 Myoelectric Triggering: Temporalis EMG High-Gamma Spectrogram", "42"),
-        ("  4.7 End-to-End Latency Waterfall and Timing Budget Compliance", "44"),
+        ("  4.7 End-to-End Latency and Real-Time Timing Budget Compliance", "44"),
         ("  4.8 Longitudinal False Positive Rate Stability", "46"),
         ("  4.9 Edge Compute Resource Utilization on Jetson Orin Nano", "48"),
         ("CHAPTER 5: IN-VIVO VALIDATION ON QNEURO H100 HEADSET", "49"),
@@ -400,7 +400,7 @@ def create_report():
         ("Table 3.2", "ESP32-P4 FreeRTOS Dual-Core Real-Time Task Allocation and Priorities", "30"),
         ("Table 4.1", "BCI Classifier Performance Summary Metrics Across All Operational Modes", "37"),
         ("Table 4.2", "Five-Fold Stratified Cross-Validation Results for SWLDA and Workload Models", "38"),
-        ("Table 4.3", "End-to-End Latency Waterfall Breakdown Against 100 ms Real-Time Budget", "45"),
+        ("Table 4.3", "End-to-End Computational Latency Breakdown Against 100 ms Real-Time Budget", "45"),
         ("Table 5.1", "Qneuro H100 Live Acquisition Session Parameters and Dataset Statistics", "50"),
         ("Table 5.2", "Real-World Qneuro H100 Headset Performance Summary Matrix (In-Vivo)", "63"),
         ("Table 6.1", "Comprehensive Verification Matrix Against Initial Project Roadmap Targets", "65"),
@@ -442,8 +442,6 @@ def create_report():
         ("Figure 4.4", "Receiver Operating Characteristic (ROC) and Precision-Recall (PR) Curves", "39"),
         ("Figure 4.5", "Periauricular Differential EOG Double-Blink Detection and Veto Lockout Trace", "41"),
         ("Figure 4.6", "STFT Time-Frequency Spectrogram of Temporalis High-Gamma Jaw-Clench Burst", "43"),
-        ("Figure 4.7", "Pipeline Execution Latency Breakdown Waterfall vs 100 ms Real-Time Budget", "45"),
-        ("Figure 4.8", "Cumulative False Positive Trigger Count Stability Over 10-Minute Resting Run", "47"),
         ("Figure 5.1", "Continuous 8-Ch Qneuro EEG: Raw ADC Values vs Zero-Phase Preprocessed Waveforms", "52"),
         ("Figure 5.2", "Power Spectral Density Across All Conditions for Frontal and Sensorimotor Channels", "53"),
         ("Figure 5.3", "STFT Spectrograms: Rest, Jaw Clench, Double Blink, and Hand Clench Signatures", "54"),
@@ -818,10 +816,8 @@ def create_report():
     add_img("fig_4_6_jaw_clench_stft_spectrogram.png", "Figure 4.6: STFT Time-Frequency Spectrogram of Temporalis High-Gamma Jaw-Clench Burst")
     p("During the clench window (t = 1.5 to 2.5 s), temporalis motor unit recruitment induces an abrupt +18 to +24 dB power surge localized strictly within the high-gamma band (30\u201345 Hz). Because ocular blinks manifest below 10 Hz, frequency-domain filtering cleanly isolates deliberate clench commands without artifact crosstalk.")
 
-    h2("4.7 End-to-End Latency Waterfall and Timing Budget Compliance")
-    p("Figure 4.7 benchmarks the computational execution time of each pipeline stage against the 100 ms soft real-time budget (10 Hz sliding step).")
-    add_img("fig_4_7_latency_waterfall.png", "Figure 4.7: Pipeline Execution Latency Breakdown Waterfall vs 100 ms Real-Time Budget")
-    p("Table 4.3 details the execution latency profiled on the host platform.")
+    h2("4.7 End-to-End Latency and Real-Time Timing Budget Compliance")
+    p("Table 4.3 details the computational execution latency of each pipeline stage profiled on the host platform benchmarked against the 100 ms soft real-time budget (10 Hz sliding step).")
 
     lat_headers = ["Pipeline Stage", "Execution Time (ms)", "Budget Share (%)", "Profiling Methodology"]
     lat_widths = [2.2, 1.4, 1.2, 1.9]
@@ -836,12 +832,10 @@ def create_report():
     ]
     tbl_lat = doc.add_table(rows=1, cols=4)
     format_table(tbl_lat, lat_widths, lat_headers, lat_data, align_cols=[WD_ALIGN_PARAGRAPH.LEFT, WD_ALIGN_PARAGRAPH.RIGHT, WD_ALIGN_PARAGRAPH.RIGHT, WD_ALIGN_PARAGRAPH.LEFT])
-    add_caption(doc, "Table 4.3: End-to-End Latency Waterfall Breakdown Against 100 ms Real-Time Budget", is_table=True)
+    add_caption(doc, "Table 4.3: End-to-End Computational Latency Breakdown Against 100 ms Real-Time Budget", is_table=True)
 
     h2("4.8 Longitudinal False Positive Rate Stability")
-    p("Figure 4.8 plots the cumulative false positive trigger count over a continuous 10-minute resting protocol.")
-    add_img("fig_4_8_false_positive_rate_10min.png", "Figure 4.8: Cumulative False Positive Trigger Count Stability Over 10-Minute Resting Run")
-    p("Without temporal arbitration (red curve), baseline alpha fluctuations and spontaneous twitches produce ~7.2 spurious triggers per minute. With the 300 ms dwell timer and veto gate active (blue curve), false triggers remain nearly flat, accumulating only 4 triggers across the entire 10-minute trial (0.45 triggers/min, effective FPR = 1.8%), comfortably meeting the clinical roadmap target (< 3.0%).")
+    p("To evaluate system stability against involuntary activation, continuous 10-minute resting protocols were analyzed to measure cumulative false positive triggers. Without temporal arbitration, baseline alpha fluctuations and spontaneous facial twitches produce ~7.2 spurious triggers per minute. With the 300 ms dwell timer and veto gate active, false triggers remain suppressed, accumulating only 4 triggers across the entire 10-minute trial (0.45 triggers/min, effective FPR = 1.8%), comfortably meeting the clinical roadmap target (< 3.0%).")
 
     h2("4.9 Edge Compute Resource Utilization on Jetson Orin Nano")
     p("Profiling on the Jetson Orin Nano (6-core ARM Cortex-A78AE, 8GB LPDDR5) confirms CPU utilization of 12.4% on a single core, memory footprint of 142 MB, and GPU utilization of 0% (CPU-only dot-product execution). This demonstrates that the pipeline leaves over 85% of compute capacity available for future deep-learning or visual-biofeedback upgrades.")
@@ -1088,10 +1082,10 @@ def create_report():
     gf_data = [
         ["Zero Review", "Motor Imagery cannot be detected around the ear; justify how cEEGrid can control hand and leg.", "Shifted paradigm from MI to discrete Event-Triggered control: P300 oddballs for hand open, temporalis high-gamma EMG for hand close, and workload alpha for session gating. Cited Eidel (2024) and Knierim (2021).", "Section 1.5\nSection 2.2\nSection 3.4"],
         ["Guide Advisory 1", "Real-time communication to ESP32 must be fail-safe; plain text serial will corrupt.", "Designed a fixed 7-byte binary UART protocol with sync header (0xAA) and CRC-8/MAXIM checksum. Added timeout retries (3x) and automatic motor hold.", "Section 3.7\nTable 3.1\nAppendix B.2"],
-        ["Guide Advisory 2", "Safety is critical; what stops accidental motor actuation during user coughing or blinking?", "Implemented a stateful 5-tier Arbitrator with a 300 ms dwell-time confirmation filter. Added periauricular double-blink veto cutoff (< 15 ms latency) that locks out motors for 500 ms.", "Section 3.6\nSection 4.5\nFigure 4.5\nFigure 4.8"],
-        ["Interim Review", "Demonstrate edge deployment viability on Jetson Orin Nano; avoid heavy Python libraries.", "Decoupled edge execution from sklearn/mne. Exported sparse linear weights to JSON; edge runner executes inference via raw numpy dot-product in < 50 microseconds.", "Section 3.5\nSection 4.7\nFigure 4.7\nAppendix B.1"],
+        ["Guide Advisory 2", "Safety is critical; what stops accidental motor actuation during user coughing or blinking?", "Implemented a stateful 5-tier Arbitrator with a 300 ms dwell-time confirmation filter. Added periauricular double-blink veto cutoff (< 15 ms latency) that locks out motors for 500 ms.", "Section 3.6\nSection 4.5\nFigure 4.5\nSection 4.8"],
+        ["Interim Review", "Demonstrate edge deployment viability on Jetson Orin Nano; avoid heavy Python libraries.", "Decoupled edge execution from sklearn/mne. Exported sparse linear weights to JSON; edge runner executes inference via raw numpy dot-product in < 50 microseconds.", "Section 3.5\nSection 4.7\nTable 4.3\nAppendix B.1"],
         ["Live Demo Review", "Show real human data, not just benchmark datasets. Validate on actual wireless headset.", "Conducted complete in-vivo validation campaign with Qneuro H100 headset. Recorded 57,250 samples from human participant. Generated 12 new analytical figures (Figs 5.1\u20135.12). Achieved 87.0% motor intent accuracy.", "Chapter 5\nFigs 5.1\u20135.16\nTable 5.1\u20135.2"],
-        ["Report Rubric Review", "Ensure comprehensive visual analysis, complete APA citations, and individual contributions.", "Generated 20 publication-grade 300-DPI figures + 4 screenshots, compiled all references in APA 7th format, and created dedicated appendix mapping for rubric compliance.", "Chapters 1-6\nAppendix A\nAppendix B"],
+        ["Report Rubric Review", "Ensure comprehensive visual analysis, complete APA citations, and individual contributions.", "Generated 18 publication-grade 300-DPI analytical figures + 4 acquisition screenshots, compiled all references in APA 7th format, and created dedicated appendix mapping for rubric compliance.", "Chapters 1-6\nAppendix A\nAppendix B"],
     ]
     tbl_gf = doc.add_table(rows=1, cols=4)
     format_table(tbl_gf, gf_widths, gf_headers, gf_data)
@@ -1245,7 +1239,7 @@ def create_report():
     fsize = os.path.getsize(OUT_FILE)
     print(f"\u2713 Report successfully generated: {OUT_FILE}")
     print(f"  File size: {fsize / 1024:.1f} KB ({fsize / (1024*1024):.2f} MB)")
-    print(f"\n  Figures included: 20 analytical figures + 4 data acquisition screenshots")
+    print(f"\n  Figures included: 18 analytical figures + 4 data acquisition screenshots")
     print(f"  Chapters: 6 (Introduction, Literature, Methodology, Benchmark Results, In-Vivo Validation, Conclusion)")
     print(f"  Tables: 14")
     print(f"  References: {len(refs)} (APA 7th format)")
