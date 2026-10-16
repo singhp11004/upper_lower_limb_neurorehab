@@ -60,3 +60,16 @@ def test_jetson_edge_runner_inference():
     res = runner.process_cycle(is_veto=False, is_clench=False, feature_vector=feat)
     assert "p300_prob" in res
     assert res["latency_us"] < 5000  # Well under 5 ms
+
+
+def test_arbitrator_leg_intent():
+    arb = Arbitrator(dwell_time_sec=0.2)
+
+    # Leg intent triggers MODULE_LEG (0x02) and CMD_STEP_FWD (0x30)
+    d1 = arb.process(is_veto=False, is_clench=False, is_leg_intent=True, p300_prob=0.1, current_time=20.0)
+    assert d1.cmd_id is None  # Dwell pending
+
+    d2 = arb.process(is_veto=False, is_clench=False, is_leg_intent=True, p300_prob=0.1, current_time=20.25)
+    assert d2.cmd_id == 0x30  # Step forward
+    assert d2.module_id == 0x02  # Leg module
+
