@@ -43,15 +43,15 @@ class EEGFilterPipeline:
         else:
             data = eeg_data
 
-        filter_func = filtfilt if zero_phase and data.shape[1] > 15 else lfilter
+        filter_func = filtfilt if zero_phase and data.shape[-1] > 15 else lfilter
 
         # Apply notch filter
-        notched = filter_func(self.b_notch, self.a_notch, data, axis=1)
+        notched = filter_func(self.b_notch, self.a_notch, data, axis=-1)
 
         # Apply bandpass filter
-        bandpassed = filter_func(self.b_band, self.a_band, notched, axis=1)
+        bandpassed = filter_func(self.b_band, self.a_band, notched, axis=-1)
 
-        return bandpassed if eeg_data.ndim == 2 else bandpassed[0]
+        return bandpassed if eeg_data.ndim != 1 else bandpassed[0]
 
     def extract_alpha_band(self, eeg_data: np.ndarray, zero_phase: bool = True) -> np.ndarray:
         """Extract temporal alpha sub-band (8–13 Hz)."""

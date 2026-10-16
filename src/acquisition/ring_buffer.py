@@ -33,18 +33,33 @@ class CircularRingBuffer:
 
     def append(self, samples: np.ndarray):
         """
-        Append new incoming EEG samples shape (n_channels, n_samples).
+        Append new incoming EEG samples shape (n_channels, n_samples) or (n_channels,).
         """
+        if samples.ndim == 1:
+            samples = samples[:, np.newaxis]
+
         if samples.ndim != 2 or samples.shape[0] != self.n_channels:
             raise ValueError(f"Expected array of shape ({self.n_channels}, n_samples), got {samples.shape}")
 
         n_samples = samples.shape[1]
+        if n_samples == 0:
+            return
 
         with self._lock:
-            for i in range(n_samples):
-                self.buffer[:, self.write_idx] = samples[:, i]
-                self.write_idx = (self.write_idx + 1) % self.capacity
-                self.total_samples_written += 1
+            if n_samples >= self.capacity:
+                self.buffer[:] = samples[:, -self.capacity:]
+                self.write_idx = 0
+            else:
+                end_idx = self.write_idx + n_samples
+                if end_idx <= self.capacity:
+                    self.buffer[:, self.write_idx:end_idx] = samples
+                else:
+                    first_part = self.capacity - self.write_idx
+                    self.buffer[:, self.write_idx:self.capacity] = samples[:, :first_part]
+                    self.buffer[:, :end_idx - self.capacity] = samples[:, first_part:]
+                self.write_idx = end_idx % self.capacity
+
+            self.total_samples_written += n_samples
 
     def get_latest_window(self) -> Optional[np.ndarray]:
         """

@@ -26,6 +26,8 @@ class SWLDAP300Classifier:
     def _stepwise_selection(self, X: np.ndarray, y: np.ndarray) -> List[int]:
         """
         Forward/backward stepwise feature selection using F-test p-values.
+        Forward step: add best feature with p < p_enter.
+        Backward step: remove any feature with p > p_remove after each addition.
         """
         from scipy.stats import f_oneway
 
@@ -33,8 +35,8 @@ class SWLDAP300Classifier:
         selected = []
         remaining = list(range(n_features))
 
-        # Perform forward selection
         while remaining and len(selected) < self.max_features:
+            # --- Forward Step: Find best candidate to add ---
             best_p = 1.0
             best_feature = None
 
@@ -58,6 +60,27 @@ class SWLDAP300Classifier:
                 remaining.remove(best_feature)
             else:
                 break
+
+            # --- Backward Step: Remove any feature with p > p_remove ---
+            if len(selected) >= 2:
+                features_to_remove = []
+                for idx, feat in enumerate(selected):
+                    # Evaluate this feature's individual contribution by testing the
+                    # subset without it against the full selected set
+                    subset_without = [s for s in selected if s != feat]
+                    X_sub = X[:, [feat]]
+                    group0 = X_sub[y == 0]
+                    group1 = X_sub[y == 1]
+
+                    if len(group0) > 0 and len(group1) > 0:
+                        _, p_val = f_oneway(group0, group1)
+                        p_val_feat = np.min(p_val) if isinstance(p_val, np.ndarray) else p_val
+                        if p_val_feat > self.p_remove:
+                            features_to_remove.append(feat)
+
+                for feat in features_to_remove:
+                    selected.remove(feat)
+                    remaining.append(feat)
 
         if not selected:
             # Fallback to top variance features if selection finds none

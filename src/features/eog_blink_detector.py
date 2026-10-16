@@ -5,19 +5,23 @@ Method adapted from King et al. (Nature Scientific Reports 2025).
 
 import numpy as np
 from scipy.signal import find_peaks
-from typing import Tuple, Dict, Any
+from typing import Tuple, Dict, Any, Optional
 
 
 class EOGBlinkDetector:
-    def __init__(self, sample_rate: int = 250, peak_threshold_uv: float = 80.0, max_blink_interval_sec: float = 0.5):
+    def __init__(self, sample_rate: int = 250, peak_threshold_uv: float = 80.0, max_blink_interval_sec: float = 0.5, ch_pos: int = 0, ch_neg: Optional[int] = -1):
         """
         :param sample_rate: Sampling frequency in Hz (250 Hz)
         :param peak_threshold_uv: Differential EOG peak amplitude threshold (default 80 uV)
         :param max_blink_interval_sec: Maximum time delta between two consecutive blinks for double-blink veto (0.5s)
+        :param ch_pos: Positive channel index for differential EOG (default 0)
+        :param ch_neg: Negative channel index for differential EOG (default -1)
         """
         self.sample_rate = sample_rate
         self.peak_threshold_uv = peak_threshold_uv
         self.max_blink_interval_samples = int(max_blink_interval_sec * sample_rate)
+        self.ch_pos = ch_pos
+        self.ch_neg = ch_neg
 
     def detect_blinks(self, eeg_signal: np.ndarray) -> Tuple[bool, int, Dict[str, Any]]:
         """
@@ -29,8 +33,13 @@ class EOGBlinkDetector:
         if eeg_signal.ndim == 1:
             eeg_signal = eeg_signal[np.newaxis, :]
 
-        # Derive differential EOG channel signal (Front-Periauricular minus Back-Periauricular)
-        diff_eog = eeg_signal[0, :] - eeg_signal[-1, :]
+        # Derive differential EOG channel signal (or single channel if only 1 channel provided)
+        if eeg_signal.shape[0] > 1 and self.ch_neg is not None:
+            pos_idx = self.ch_pos % eeg_signal.shape[0]
+            neg_idx = self.ch_neg % eeg_signal.shape[0]
+            diff_eog = eeg_signal[pos_idx, :] - eeg_signal[neg_idx, :]
+        else:
+            diff_eog = eeg_signal[0, :]
 
         # Find positive amplitude peaks corresponding to eye blinks
         peaks, properties = find_peaks(

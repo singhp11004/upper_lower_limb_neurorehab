@@ -1,0 +1,115 @@
+#!/usr/bin/env python3
+"""
+Qneuro H100 Real-Time LSL Receiver and Pipeline Bridge
+Receives live 8-channel EEG at 250 Hz, 2-channel PPG, and 7-axis IMU from Qneuro app on host.
+Features real-time bandpass filtering (0.5 - 45 Hz), notch filtering (50 Hz), and CSV logging.
+"""
+
+import sys
+import time
+import argparse
+import numpy as np
+from pylsl import StreamInlet, resolve_byprop, resolve_streams
+from scipy.signal import butter, filtfilt, iirnotch
+
+def build_filters(srate=250.0):
+    # Bandpass 0.5 - 45 Hz (4th order Butterworth)
+    nyq = 0.5 * srate
+    low = 0.5 / nyq
+    high = 45.0 / nyq
+    b_band, a_band = butter(4, [low, high], btype='band')
+    
+    # 50 Hz Notch filter (Q=30)
+    w0 = 50.0 / nyq
+    b_notch, a_notch = iirnotch(w0, 30.0)
+    return (b_band, a_band), (b_notch, a_notch)
+
+def main():
+    parser = argparse.ArgumentParser(description="Qneuro H100 LSL Stream Consumer")
+    parser.add_argument("--stream", type=str, default="aq1", help="LSL Stream Name (default: aq1, fallback: EEG, admin_EEG)")
+    parser.add_argument("--filter", action="store_true", help="Apply real-time 0.5-45 Hz bandpass + 50 Hz notch filter")
+    parser.add_argument("--save", type=str, default=None, help="Save raw and filtered stream to CSV filename")
+    args = parser.parse_args()
+
+    print(f"[*] Discovering Qneuro stream '{args.stream}' on local network...")
+    streams = resolve_byprop('name', args.stream, timeout=4.0)
+    if not streams:
+        print(f"[*] Stream '{args.stream}' not found immediately. Checking fallback names ('aq1', 'EEG', 'Qneuro_H100_EEG_PPG')...")
+        for fallback in ["aq1", "EEG", "Qneuro_H100_EEG_PPG", "admin_EEG"]:
+            streams = resolve_byprop('name', fallback, timeout=1.5)
+            if streams:
+                print(f"[+] Connected to fallback stream: {fallback}")
+                break
+
+    if not streams:
+        print(f"[-] Stream '{args.stream}' not found. Available streams:")
+        all_s = resolve_streams(wait_time=2.0)
+        for s in all_s:
+            print(f"    - {s.name()} ({s.type()}) from {s.hostname()}")
+        sys.exit(1)
+
+    inlet = StreamInlet(streams[0], max_buflen=360)
+    info = inlet.info()
+    n_channels = info.channel_count()
+    srate = info.nominal_srate() if info.nominal_srate() > 0 else 250.0
+    print(f"[+] Connected to: {info.name()} ({info.type()}) from {info.hostname()}")
+    print(f"[+] Channels: {n_channels} | Sampling Rate: {srate:.1f} Hz | Format: {info.channel_format()}")
+
+    # Setup file logging if requested
+    csv_file = None
+    if args.save:
+        csv_file = open(args.save, 'w')
+        headers = ["timestamp"] + [f"ch_{i+1}" for i in range(n_channels)]
+        csv_file.write(",".join(headers) + "\n")
+        print(f"[+] Logging telemetry into {args.save}")
+
+    (b_band, a_band), (b_notch, a_notch) = build_filters(srate)
+    buffer_len = int(srate * 2) # 2-second circular buffer for filtering
+    data_buffer = np.zeros((buffer_len, n_channels))
+
+    print("\n[*] Receiving live stream (Ctrl+C to stop)...\n")
+    sample_count = 0
+    t_start = time.time()
+    last_print = time.time()
+
+    try:
+        while True:
+            sample, timestamp = inlet.pull_sample(timeout=1.0)
+            if sample is None:
+                continue
+
+            sample_count += 1
+            sample_arr = np.array(sample)
+
+            if csv_file:
+                csv_file.write(f"{timestamp}," + ",".join([f"{v:.4f}" for v in sample_arr]) + "\n")
+
+            data_buffer = np.roll(data_buffer, -1, axis=0)
+            data_buffer[-1, :] = sample_arr
+
+            # Display snapshot at ~5 Hz
+            now = time.time()
+            if now - last_print >= 0.2:
+                if args.filter and sample_count >= buffer_len:
+                    # Apply notch + bandpass across buffer
+                    notched = filtfilt(b_notch, a_notch, data_buffer, axis=0)
+                    filtered = filtfilt(b_band, a_band, notched, axis=0)
+                    disp = [round(x, 2) for x in filtered[-1, :]]
+                    tag = "FILTERED [0.5-45Hz]"
+                else:
+                    disp = [round(x, 2) for x in sample_arr]
+                    tag = "RAW µV"
+
+                rate_est = sample_count / (now - t_start)
+                print(f"[{timestamp:.3f}] ({rate_est:.1f} Hz) {tag}: {disp}")
+                last_print = now
+
+    except KeyboardInterrupt:
+        print(f"\n[+] Acquisition halted by user. Total samples collected: {sample_count}")
+    finally:
+        if csv_file:
+            csv_file.close()
+            print(f"[+] Saved dataset to {args.save}")
+
+if __name__ == "__main__":
+    main()

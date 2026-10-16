@@ -42,9 +42,15 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Neurorehab BCI MVP Demo Runner")
     parser.add_argument(
         "--mode",
-        choices=["synthetic", "playback", "live"],
+        choices=["synthetic", "playback", "live", "lsl"],
         default="playback",
-        help="Acquisition mode (default: playback)"
+        help="Acquisition mode: synthetic, playback, live (OpenBCI), or lsl (Qneuro H100)"
+    )
+    parser.add_argument(
+        "--stream",
+        type=str,
+        default="aq1",
+        help="LSL Stream Name if in 'lsl' mode (default: aq1, fallback: EEG)"
     )
     parser.add_argument(
         "--file",
@@ -122,7 +128,7 @@ def main():
     # 1. Initialize Acquisition
     print("Initializing acquisition streamer...")
     playback_path = args.file if os.path.exists(args.file) else None
-    streamer = BrainFlowStreamer(mode=args.mode, playback_file=playback_path)
+    streamer = BrainFlowStreamer(mode=args.mode, playback_file=playback_path, lsl_stream_name=args.stream)
     ring_buf = CircularRingBuffer(n_channels=16, window_sec=2.0, step_sec=0.1, sample_rate=250)
 
     # 2. Initialize Preprocessing
@@ -223,8 +229,9 @@ def main():
                     p300_prob = 0.0
 
             # 4. Alpha Workload
+            bp = bandpower_extractor.compute_bandpower(cleaned)
+            alpha_power_db = float(np.mean(bp["alpha"]))  # mean alpha power across channels
             bp_features = bandpower_extractor.extract_feature_vector(cleaned)
-            alpha_power_db = float(np.mean(bp_features[16:32]))  # mean across channels
             workload_state = "ACTIVE"
             if workload_clf is not None:
                 try:

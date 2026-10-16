@@ -24,9 +24,12 @@ class SignalQualityMonitor:
 
         :return: Dict containing channel_status, snr_db, saturation_flags, flatline_flags
         """
-        if eeg_window.ndim != 2 or eeg_window.shape[0] != self.n_channels:
+        if eeg_window.ndim != 2:
+            raise ValueError(f"Expected 2D array of shape (n_channels, n_samples), got {eeg_window.shape}")
+        if self.n_channels is not None and eeg_window.shape[0] != self.n_channels:
             raise ValueError(f"Expected shape ({self.n_channels}, n_samples), got {eeg_window.shape}")
 
+        num_ch = eeg_window.shape[0]
         stds = np.std(eeg_window, axis=1)
         max_amps = np.max(np.abs(eeg_window), axis=1)
 
@@ -40,12 +43,12 @@ class SignalQualityMonitor:
         snr_db = 10 * np.log10(np.maximum(signal_var / (diff_var / 2.0), 1e-6))
 
         channel_status = []
-        for ch in range(self.n_channels):
-            if flatline_flags[ch]:
-                status = "DISCONNECTED"
-            elif saturation_flags[ch]:
+        for ch in range(num_ch):
+            if saturation_flags[ch]:
                 status = "SATURATED"
             elif stds[ch] < 0.1:
+                status = "DISCONNECTED"
+            elif stds[ch] < self.flatline_std_uv:
                 status = "POOR"
             else:
                 status = "GOOD"

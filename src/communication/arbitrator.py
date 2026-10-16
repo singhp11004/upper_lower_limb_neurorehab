@@ -1,8 +1,9 @@
 """Arbitration Engine and Safety State Machine.
 
-Implements the 4-level signal priority cascade:
+Implements the 5-level signal priority cascade:
   Level 1 (Highest): EOG Double-Blink Veto -> Emergency Stop (0x99), 500 ms lockout
-  Level 2: Jaw-Clench High-Gamma Burst -> Hand Close (0x20) / Leg Step (0x30), dwell confirmation
+  Level 2: Jaw-Clench High-Gamma Burst -> Hand Close (0x20), dwell confirmation
+  Level 2.5: Leg Extension Motor Intent -> Leg Step Forward (0x30), dwell confirmation
   Level 3: P300 Oddball ERP -> Hand Open (0x10), confidence >= threshold + dwell confirmation
   Level 4: Alpha Workload -> Rest/Active state gate
 """
@@ -10,6 +11,15 @@ Implements the 4-level signal priority cascade:
 import time
 from dataclasses import dataclass
 from typing import Optional, Tuple
+
+# Command name lookup for dispatch logging
+_CMD_NAMES = {
+    0x10: "Hand Open",
+    0x20: "Hand Close",
+    0x30: "Leg Step Forward",
+    0x40: "Leg Step Back",
+    0x99: "Emergency Stop",
+}
 
 
 @dataclass
@@ -24,6 +34,15 @@ class ArbitratorDecision:
 
 class Arbitrator:
     """Stateful priority arbitrator and safety manager."""
+
+    # Module and command constants (mirrors PacketEncoder)
+    MODULE_HAND = 0x01
+    MODULE_LEG = 0x02
+    CMD_OPEN = 0x10
+    CMD_CLOSE = 0x20
+    CMD_STEP_FWD = 0x30
+    CMD_STEP_BACK = 0x40
+    CMD_ESTOP = 0x99
 
     def __init__(
         self,
@@ -49,6 +68,7 @@ class Arbitrator:
         p300_prob: float,
         workload_state: str = "ACTIVE",
         current_time: Optional[float] = None,
+        is_leg_intent: bool = False,
     ) -> ArbitratorDecision:
         """Processes current detector outputs and resolves arbitration.
         
@@ -58,6 +78,7 @@ class Arbitrator:
             p300_prob: Classifier probability for P300 target (0.0 to 1.0).
             workload_state: 'ACTIVE' or 'REST' (alpha state gate).
             current_time: Optional epoch timestamp (defaults to time.monotonic()).
+            is_leg_intent: True if leg extension motor intent detected.
             
         Returns:
             ArbitratorDecision with command details or None if idle/dwell pending.
@@ -69,8 +90,8 @@ class Arbitrator:
             self.veto_until_time = now + self.veto_lockout_sec
             self.pending_intent = None
             return ArbitratorDecision(
-                module_id=0x01,  # Broadcast / Hand E-Stop
-                cmd_id=0x99,     # Emergency Stop
+                module_id=self.MODULE_HAND,  # Broadcast / Hand E-Stop
+                cmd_id=self.CMD_ESTOP,       # Emergency Stop
                 param=0,
                 confidence=1.0,
                 reason="Double-Blink Veto Triggered (Emergency Stop)",
@@ -106,11 +127,15 @@ class Arbitrator:
         candidate_conf = 0.0
 
         if is_clench:
-            candidate_intent = (0x01, 0x20)  # Hand Close
+            candidate_intent = (self.MODULE_HAND, self.CMD_CLOSE)  # Hand Close
             candidate_conf = 0.95
+        # PRIORITY 2.5: Leg Extension Intent (Step Forward 0x30)
+        elif is_leg_intent:
+            candidate_intent = (self.MODULE_LEG, self.CMD_STEP_FWD)  # Leg Step Forward
+            candidate_conf = 0.90
         # PRIORITY 3: P300 ERP Intent (Open Hand 0x10)
         elif p300_prob >= self.p300_thresh:
-            candidate_intent = (0x01, 0x10)  # Hand Open
+            candidate_intent = (self.MODULE_HAND, self.CMD_OPEN)  # Hand Open
             candidate_conf = float(p300_prob)
 
         # Dwell-time confirmation state machine
@@ -121,7 +146,7 @@ class Arbitrator:
                     # Confirmed! Reset pending to avoid re-triggering constantly without re-dwell
                     self.pending_intent = None
                     self.last_dispatched_cmd_time = now
-                    cmd_name = "Hand Close" if candidate_intent[1] == 0x20 else "Hand Open"
+                    cmd_name = _CMD_NAMES.get(candidate_intent[1], f"Cmd 0x{candidate_intent[1]:02X}")
                     return ArbitratorDecision(
                         module_id=candidate_intent[0],
                         cmd_id=candidate_intent[1],
@@ -159,3 +184,4 @@ class Arbitrator:
                 confidence=0.0,
                 reason="Idle (No candidate intent)"
             )
+
