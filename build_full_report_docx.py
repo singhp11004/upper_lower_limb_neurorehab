@@ -127,19 +127,22 @@ def create_report():
             run.italic = italic
             if color:
                 run.font.color.rgb = color
+            else:
+                run.font.color.rgb = RGBColor(0, 0, 0)
         return par
 
     def h1(text):
         par = doc.add_paragraph()
+        par.alignment = WD_ALIGN_PARAGRAPH.CENTER
         par.paragraph_format.space_before = Pt(20)
-        par.paragraph_format.space_after = Pt(8)
+        par.paragraph_format.space_after = Pt(12)
         par.paragraph_format.line_spacing = 1.15
         par.paragraph_format.keep_with_next = True
         run = par.add_run(text)
         run.font.name = "Times New Roman"
         run.font.size = Pt(16)
         run.bold = True
-        run.font.color.rgb = RGBColor(0, 32, 96)
+        run.font.color.rgb = RGBColor(0, 0, 0)
         return par
 
     def h2(text):
@@ -148,11 +151,11 @@ def create_report():
         par.paragraph_format.space_after = Pt(6)
         par.paragraph_format.line_spacing = 1.15
         par.paragraph_format.keep_with_next = True
-        run = par.add_run(text)
+        run = par.add_run(text.upper())
         run.font.name = "Times New Roman"
-        run.font.size = Pt(13.5)
+        run.font.size = Pt(14)
         run.bold = True
-        run.font.color.rgb = RGBColor(30, 30, 30)
+        run.font.color.rgb = RGBColor(0, 0, 0)
         return par
 
     def h3(text):
@@ -161,24 +164,29 @@ def create_report():
         par.paragraph_format.space_after = Pt(4)
         par.paragraph_format.line_spacing = 1.15
         par.paragraph_format.keep_with_next = True
-        run = par.add_run(text)
+        run = par.add_run(text.upper())
         run.font.name = "Times New Roman"
         run.font.size = Pt(12)
         run.bold = True
-        run.italic = True
-        run.font.color.rgb = RGBColor(50, 50, 50)
+        run.italic = False
+        run.font.color.rgb = RGBColor(0, 0, 0)
         return par
 
     def add_caption(doc_target, text, is_table=False):
         c = doc_target.add_paragraph()
-        c.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        c.paragraph_format.space_before = Pt(4)
-        c.paragraph_format.space_after = Pt(12)
+        if is_table:
+            c.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            c.paragraph_format.space_before = Pt(8)
+            c.paragraph_format.space_after = Pt(4)
+        else:
+            c.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            c.paragraph_format.space_before = Pt(4)
+            c.paragraph_format.space_after = Pt(12)
         rc = c.add_run(text)
         rc.font.name = "Times New Roman"
-        rc.font.size = Pt(10.5)
+        rc.font.size = Pt(10)
         rc.bold = True
-        rc.font.color.rgb = RGBColor(60, 60, 60)
+        rc.font.color.rgb = RGBColor(0, 0, 0)
         return c
 
     def add_img(img_name, caption_text, width=6.0, img_dir=None):
@@ -189,7 +197,7 @@ def create_report():
         if os.path.exists(img_path):
             par = doc.add_paragraph()
             par.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            par.paragraph_format.space_before = Pt(10)
+            par.paragraph_format.space_before = Pt(8)
             par.paragraph_format.space_after = Pt(4)
             r = par.add_run()
             r.add_picture(img_path, width=Inches(width))
@@ -197,18 +205,31 @@ def create_report():
             c = doc.add_paragraph()
             c.alignment = WD_ALIGN_PARAGRAPH.CENTER
             c.paragraph_format.space_before = Pt(2)
-            c.paragraph_format.space_after = Pt(12)
+            c.paragraph_format.space_after = Pt(10)
             rc = c.add_run(caption_text)
             rc.font.name = "Times New Roman"
-            rc.font.size = Pt(10.5)
+            rc.font.size = Pt(10)
             rc.bold = True
-            rc.font.color.rgb = RGBColor(60, 60, 60)
+            rc.font.color.rgb = RGBColor(0, 0, 0)
         else:
             print(f"  ⚠ Warning: Missing figure {img_path}")
 
     def add_screenshot(img_name, caption_text, width=5.0):
         """Insert a screenshot from screenshots/data_acq."""
         add_img(img_name, caption_text, width=width, img_dir=SCREENSHOT_DIR)
+
+    def add_vit_logo():
+        """Insert official centered VIT Logo on Cover/Title pages."""
+        logo_path = os.path.join(FIG_DIR, "vit_logo.jpg")
+        if os.path.exists(logo_path):
+            p_logo = doc.add_paragraph()
+            p_logo.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            p_logo.paragraph_format.space_before = Pt(12)
+            p_logo.paragraph_format.space_after = Pt(16)
+            r = p_logo.add_run()
+            r.add_picture(logo_path, width=Inches(3.46))
+        else:
+            print(f"  ⚠ Warning: Missing VIT Logo at {logo_path}")
 
     def format_table(tbl, col_widths, headers, data, align_cols=None):
         tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -270,22 +291,26 @@ def create_report():
     print("Writing Preliminary Pages...")
 
     # 1. COVER PAGE
-    p("A PROJECT REPORT ON", font_size=14, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=18)
-    p("EEG-BASED EXOSKELETON CONTROL FOR UPPER- AND LOWER-LIMB NEUROREHABILITATION", font_size=18, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=24, color=RGBColor(0, 32, 96))
-    p("Submitted in partial fulfillment of the requirements\nfor the award of the degree of", font_size=12, italic=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=18)
-    p("BACHELOR OF TECHNOLOGY\nIN\nCOMPUTER SCIENCE AND ENGINEERING\n(ARTIFICIAL INTELLIGENCE AND ROBOTICS)", font_size=14, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=24)
-    p("by", font_size=12, italic=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=12)
-    p("PARDEEP SINGH (23BRS1123)\nAASTHA KUMARI (23BRS1040)", font_size=13.5, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=40)
-    p("SCHOOL OF COMPUTER SCIENCE AND ENGINEERING\nVELLORE INSTITUTE OF TECHNOLOGY, CHENNAI\nNOVEMBER, 2026", font_size=13, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=0)
+    p("A project report on", font_size=12, italic=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=18)
+    p("EEG-BASED EXOSKELETON CONTROL FOR UPPER- AND LOWER-LIMB NEUROREHABILITATION", font_size=20, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=18)
+    p("Submitted in partial fulfillment for the award of the degree of", font_size=14, italic=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=16)
+    p("Bachelor of Technology in Computer Science and Engineering\n(Artificial Intelligence and Robotics)", font_size=20, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=18)
+    p("by", font_size=14, italic=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=12)
+    p("PARDEEP SINGH (23BRS1123)\nAASTHA KUMARI (23BRS1040)", font_size=16, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=16)
+    add_vit_logo()
+    p("SCHOOL OF COMPUTER SCIENCE AND ENGINEERING", font_size=16, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=8)
+    p("November, 2026", font_size=12, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=0)
     doc.add_page_break()
 
     # 2. TITLE PAGE
-    p("EEG-BASED EXOSKELETON CONTROL FOR UPPER- AND LOWER-LIMB NEUROREHABILITATION", font_size=18, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=20, space_after=24, color=RGBColor(0, 32, 96))
-    p("Submitted in partial fulfillment of the requirements\nfor the award of the degree of", font_size=12, italic=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=18)
-    p("BACHELOR OF TECHNOLOGY\nIN\nCOMPUTER SCIENCE AND ENGINEERING\n(ARTIFICIAL INTELLIGENCE AND ROBOTICS)", font_size=14, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=24)
-    p("by", font_size=12, italic=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=12)
-    p("PARDEEP SINGH (23BRS1123)\nAASTHA KUMARI (23BRS1040)", font_size=13.5, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=40)
-    p("SCHOOL OF COMPUTER SCIENCE AND ENGINEERING\nVELLORE INSTITUTE OF TECHNOLOGY, CHENNAI\nNOVEMBER, 2026", font_size=13, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=0)
+    p("EEG-BASED EXOSKELETON CONTROL FOR UPPER- AND LOWER-LIMB NEUROREHABILITATION", font_size=20, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=24, space_after=18)
+    p("Submitted in partial fulfillment for the award of the degree of", font_size=14, italic=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=16)
+    p("Bachelor of Technology in Computer Science and Engineering\n(Artificial Intelligence and Robotics)", font_size=20, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=18)
+    p("by", font_size=14, italic=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=12)
+    p("PARDEEP SINGH (23BRS1123)\nAASTHA KUMARI (23BRS1040)", font_size=16, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=16)
+    add_vit_logo()
+    p("SCHOOL OF COMPUTER SCIENCE AND ENGINEERING", font_size=16, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=8)
+    p("November, 2026", font_size=12, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=0)
 
     # --- Section 2: Front Matter (Declaration to Abbreviations: lowerRoman iii, iv, ...) ---
     sec_front = doc.add_section()
@@ -298,9 +323,9 @@ def create_report():
     set_section_footer_page_number(sec_front)
 
     # 3. DECLARATION
-    p("DECLARATION", font_size=16, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=18)
-    p("I hereby declare that the project report entitled \u201cEEG-BASED EXOSKELETON CONTROL FOR UPPER- AND LOWER-LIMB NEUROREHABILITATION\u201d submitted by me, PARDEEP SINGH (Register No. 23BRS1123), for the award of the degree of Bachelor of Technology in Computer Science and Engineering with Specialization in Artificial Intelligence and Robotics, Vellore Institute of Technology, Chennai, is a record of bonafide work carried out by me under the supervision of my Project Guide.", font_size=12, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=12)
-    p("I further declare that the work reported in this project report has not been submitted and will not be submitted, either in part or in full, for the award of any other degree or diploma in this institute or any other institute or university.", font_size=12, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=36)
+    p("DECLARATION", font_size=14, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=20)
+    p("I hereby declare that the thesis entitled \u201cEEG-BASED EXOSKELETON CONTROL FOR UPPER- AND LOWER-LIMB NEUROREHABILITATION\u201d submitted by me, PARDEEP SINGH (Register No. 23BRS1123), for the award of the degree of Bachelor of Technology in Computer Science and Engineering (Artificial Intelligence and Robotics), Vellore Institute of Technology, Chennai is a record of bonafide work carried out by me under the supervision of my Project Guide, School of Computer Science and Engineering, Vellore Institute of Technology, Chennai.", font_size=12, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=16)
+    p("I further declare that the work reported in this thesis has not been submitted and will not be submitted, either in part or in full, for the award of any other degree or diploma in this institute or any other institute or university.", font_size=12, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=36)
 
     dec_tbl = doc.add_table(rows=2, cols=2)
     dec_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -316,31 +341,52 @@ def create_report():
                     r.font.name = "Times New Roman"
                     r.font.size = Pt(11)
                     r.bold = True
+                    r.font.color.rgb = RGBColor(0, 0, 0)
     doc.add_page_break()
 
     # 4. CERTIFICATE
-    p("CERTIFICATE", font_size=16, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=18)
-    p("This is to certify that the project report entitled \u201cEEG-BASED EXOSKELETON CONTROL FOR UPPER- AND LOWER-LIMB NEUROREHABILITATION\u201d is prepared and submitted by PARDEEP SINGH (Register No: 23BRS1123) to Vellore Institute of Technology, Chennai, in partial fulfillment of the requirement for the award of the degree of Bachelor of Technology in Computer Science and Engineering (Artificial Intelligence and Robotics), is a bonafide record of work carried out under my guidance.", font_size=12, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=12)
-    p("The project fulfills the requirements as per the regulations of this University and in my opinion meets the necessary academic standards for submission. The contents of this report have not been submitted and will not be submitted either in part or in full, for the award of any other degree or diploma and the same is certified.", font_size=12, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=40)
+    p("School of Computer Science and Engineering", font_size=14, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=12)
+    p("CERTIFICATE", font_size=16, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=18)
+    p("This is to certify that the report entitled \u201cEEG-BASED EXOSKELETON CONTROL FOR UPPER- AND LOWER-LIMB NEUROREHABILITATION\u201d is prepared and submitted by PARDEEP SINGH (Register No: 23BRS1123) to Vellore Institute of Technology, Chennai, in partial fulfillment of the requirement for the award of the degree of Bachelor of Technology in Computer Science and Engineering (Artificial Intelligence and Robotics) is a bonafide record carried out under my guidance. The project fulfills the requirements as per the regulations of this University and in my opinion meets the necessary standards for submission. The contents of this report have not been submitted and will not be submitted either in part or in full, for the award of any other degree or diploma and the same is certified.", font_size=12, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=24)
 
-    cert_tbl = doc.add_table(rows=4, cols=2)
+    cert_tbl = doc.add_table(rows=6, cols=2)
     cert_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+    cert_tbl.autofit = False
+    for r in cert_tbl.rows:
+        r.cells[0].width = Inches(3.2)
+        r.cells[1].width = Inches(3.2)
+
     cert_tbl.rows[0].cells[0].paragraphs[0].text = "Signature of the Guide:"
-    cert_tbl.rows[0].cells[1].paragraphs[0].text = "Head of the Department:"
-    cert_tbl.rows[1].cells[0].paragraphs[0].text = "Name: Dr. / Prof."
-    cert_tbl.rows[1].cells[1].paragraphs[0].text = "SCOPE, VIT Chennai"
-    cert_tbl.rows[2].cells[0].paragraphs[0].text = "Date:"
-    cert_tbl.rows[2].cells[1].paragraphs[0].text = "Date:"
-    cert_tbl.rows[3].cells[0].paragraphs[0].text = "\nInternal Examiner"
-    cert_tbl.rows[3].cells[1].paragraphs[0].text = "\nExternal Examiner"
+    cert_tbl.rows[0].cells[1].paragraphs[0].text = ""
+
+    cert_tbl.rows[1].cells[0].paragraphs[0].text = "Name: Dr. / Prof.\nAssociate Professor, SCOPE\nDate:"
+    cert_tbl.rows[1].cells[1].paragraphs[0].text = ""
+
+    cert_tbl.rows[2].cells[0].paragraphs[0].text = "Signature of the Internal Examiner:"
+    cert_tbl.rows[2].cells[1].paragraphs[0].text = "Signature of the External Examiner:"
+
+    cert_tbl.rows[3].cells[0].paragraphs[0].text = "Name:\nDate:"
+    cert_tbl.rows[3].cells[1].paragraphs[0].text = "Name:\nDate:"
+
+    cert_tbl.rows[4].cells[0].paragraphs[0].text = ""
+    cert_tbl.rows[4].cells[1].paragraphs[0].text = ""
+
+    c_hod_a = cert_tbl.rows[5].cells[0]
+    c_hod_b = cert_tbl.rows[5].cells[1]
+    c_hod_a.merge(c_hod_b)
+    c_hod_a.paragraphs[0].text = "Approved by the Head of Department,\nB.Tech. Computer Science and Engineering (AI & Robotics)\nName: Dr. D. Sathian, HoD\nDate:"
+
     for row in cert_tbl.rows:
         for cell in row.cells:
             for prg in cell.paragraphs:
                 prg.paragraph_format.line_spacing = 1.2
+                prg.paragraph_format.space_before = Pt(2)
+                prg.paragraph_format.space_after = Pt(2)
                 for r in prg.runs:
                     r.font.name = "Times New Roman"
                     r.font.size = Pt(11)
                     r.bold = True
+                    r.font.color.rgb = RGBColor(0, 0, 0)
     doc.add_page_break()
 
     # 5. ABSTRACT
@@ -401,7 +447,7 @@ def create_report():
         ("  3.7 Binary Telemetry Protocol and Packet Serialization", "18"),
         ("  3.8 Tier 3: Real-Time Actuation and FreeRTOS MCU Architecture", "18"),
         ("  3.9 Tier 4: Physical Testbed (Hand and Leg Modules)", "19"),
-        ("CHAPTER 4: EXPERIMENTAL RESULTS (BENCHMARK EVALUATION)", "20"),
+        ("CHAPTER 4: EXPERIMENTAL RESULTS AND DISCUSSION (BENCHMARK EVALUATION)", "20"),
         ("  4.1 Signal Conditioning and Power Spectral Density Analysis", "20"),
         ("  4.2 P300 ERP Grand Average Morphology", "21"),
         ("  4.3 Classification Performance and Confusion Matrices", "21"),
