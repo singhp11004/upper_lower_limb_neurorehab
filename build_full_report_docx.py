@@ -27,7 +27,9 @@ from docx.oxml.ns import nsdecls, qn
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 FIG_DIR = os.path.join(BASE_DIR, "results", "figures")
 SCREENSHOT_DIR = os.path.join(BASE_DIR, "screenshots", "data_acq")
-OUT_FILE = os.path.join(BASE_DIR, "BCSE497J_Project_Report_Pardeep_Singh_23BRS1123.docx")
+PRIMARY_OUT_FILE = os.path.join(BASE_DIR, "final_report_BCSE497J_Project_Report_Pardeep_Singh_23BRS1123.docx")
+LEGACY_OUT_FILE = os.path.join(BASE_DIR, "BCSE497J_Project_Report_Pardeep_Singh_23BRS1123.docx")
+OUT_FILE = PRIMARY_OUT_FILE
 
 
 def create_report():
@@ -113,7 +115,7 @@ def create_report():
     style_normal.paragraph_format.space_after = Pt(6)
 
     # --- Helper Styling Functions ---
-    def p(text="", font_size=12, bold=False, italic=False, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_before=0, space_after=6, line_spacing=1.5, color=None):
+    def p(text="", font_size=12, bold=False, italic=False, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_before=0, space_after=6, line_spacing=1.5, color=None, underline=False):
         par = doc.add_paragraph()
         par.alignment = align
         par.paragraph_format.space_before = Pt(space_before)
@@ -125,6 +127,7 @@ def create_report():
             run.font.size = Pt(font_size)
             run.bold = bold
             run.italic = italic
+            run.underline = underline
             if color:
                 run.font.color.rgb = color
             else:
@@ -329,7 +332,7 @@ def create_report():
     set_section_footer_page_number(sec_front)
 
     # 3. DECLARATION
-    p("DECLARATION", font_size=14, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=20)
+    p("DECLARATION", font_size=14, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=20, underline=True)
     p("I hereby declare that the thesis entitled “EEG-BASED EXOSKELETON CONTROL FOR UPPER- AND LOWER-LIMB NEUROREHABILITATION” submitted by me, PARDEEP SINGH (Register No. 23BRS1123), for the award of the degree of Bachelor of Technology in Computer Science and Engineering (Artificial Intelligence and Robotics), Vellore Institute of Technology, Chennai is a record of bonafide work carried out by me under the supervision of my Project Guide, School of Computer Science and Engineering, Vellore Institute of Technology, Chennai.", font_size=12, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=16)
     p("I further declare that the work reported in this thesis has not been submitted and will not be submitted, either in part or in full, for the award of any other degree or diploma in this institute or any other institute or university.", font_size=12, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=36)
 
@@ -1435,10 +1438,12 @@ def create_report():
     tbl_pin = doc.add_table(rows=1, cols=4)
     format_table(tbl_pin, pin_widths, pin_headers, pin_data)
 
-    print(f"\nSaving compiled document to {OUT_FILE}...")
-    doc.save(OUT_FILE)
-    fsize = os.path.getsize(OUT_FILE)
-    print(f"\u2713 Report successfully generated: {OUT_FILE}")
+    print(f"\nSaving compiled document to {PRIMARY_OUT_FILE}...")
+    doc.save(PRIMARY_OUT_FILE)
+    doc.save(LEGACY_OUT_FILE)
+    fsize = os.path.getsize(PRIMARY_OUT_FILE)
+    print(f"\u2713 Report successfully generated: {PRIMARY_OUT_FILE}")
+    print(f"  Legacy copy saved: {LEGACY_OUT_FILE}")
     print(f"  File size: {fsize / 1024:.1f} KB ({fsize / (1024*1024):.2f} MB)")
     print(f"\n  Figures included: 22 analytical figures + 4 data acquisition screenshots (26 figures total)")
     print(f"  Chapters: 6 (Introduction, Literature, Methodology, Benchmark Results, In-Vivo Validation, Conclusion)")
