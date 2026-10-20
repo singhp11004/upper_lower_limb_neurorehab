@@ -178,6 +178,7 @@ def create_report():
             c.alignment = WD_ALIGN_PARAGRAPH.LEFT
             c.paragraph_format.space_before = Pt(8)
             c.paragraph_format.space_after = Pt(4)
+            c.paragraph_format.keep_with_next = True
         else:
             c.alignment = WD_ALIGN_PARAGRAPH.CENTER
             c.paragraph_format.space_before = Pt(4)
@@ -248,6 +249,9 @@ def create_report():
         tblPr.append(borders)
 
         # Header Row
+        hdr_tr = tbl.rows[0]._tr.get_or_add_trPr()
+        hdr_tr.append(parse_xml(r'<w:tblHeader %s/>' % nsdecls('w')))
+        hdr_tr.append(parse_xml(r'<w:cantSplit %s/>' % nsdecls('w')))
         hdr_cells = tbl.rows[0].cells
         for i, title in enumerate(headers):
             hdr_cells[i].text = title
@@ -266,7 +270,9 @@ def create_report():
 
         # Data Rows
         for r_idx, row_data in enumerate(data):
-            row_cells = tbl.add_row().cells
+            row = tbl.add_row()
+            row._tr.get_or_add_trPr().append(parse_xml(r'<w:cantSplit %s/>' % nsdecls('w')))
+            row_cells = row.cells
             fill_color = "F7F9FC" if r_idx % 2 == 1 else "FFFFFF"
             for c_idx, val in enumerate(row_data):
                 row_cells[c_idx].text = str(val)
@@ -294,7 +300,7 @@ def create_report():
     p("A project report on", font_size=12, italic=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=18)
     p("EEG-BASED EXOSKELETON CONTROL FOR UPPER- AND LOWER-LIMB NEUROREHABILITATION", font_size=20, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=18)
     p("Submitted in partial fulfillment for the award of the degree of", font_size=14, italic=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=16)
-    p("Bachelor of Technology in Computer Science and Engineering\n(Artificial Intelligence and Robotics)", font_size=20, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=18)
+    p("Bachelor of Technology in Computer Science and Engineering\n(Artificial Intelligence and Robotics)", font_size=22, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=18)
     p("by", font_size=14, italic=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=12)
     p("PARDEEP SINGH (23BRS1123)\nAASTHA KUMARI (23BRS1040)", font_size=16, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=16)
     add_vit_logo()
@@ -305,7 +311,7 @@ def create_report():
     # 2. TITLE PAGE
     p("EEG-BASED EXOSKELETON CONTROL FOR UPPER- AND LOWER-LIMB NEUROREHABILITATION", font_size=20, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=24, space_after=18)
     p("Submitted in partial fulfillment for the award of the degree of", font_size=14, italic=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=16)
-    p("Bachelor of Technology in Computer Science and Engineering\n(Artificial Intelligence and Robotics)", font_size=20, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=18)
+    p("Bachelor of Technology in Computer Science and Engineering\n(Artificial Intelligence and Robotics)", font_size=22, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=18)
     p("by", font_size=14, italic=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=12)
     p("PARDEEP SINGH (23BRS1123)\nAASTHA KUMARI (23BRS1040)", font_size=16, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=16)
     add_vit_logo()
@@ -324,7 +330,7 @@ def create_report():
 
     # 3. DECLARATION
     p("DECLARATION", font_size=14, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=20)
-    p("I hereby declare that the thesis entitled \u201cEEG-BASED EXOSKELETON CONTROL FOR UPPER- AND LOWER-LIMB NEUROREHABILITATION\u201d submitted by me, PARDEEP SINGH (Register No. 23BRS1123), for the award of the degree of Bachelor of Technology in Computer Science and Engineering (Artificial Intelligence and Robotics), Vellore Institute of Technology, Chennai is a record of bonafide work carried out by me under the supervision of my Project Guide, School of Computer Science and Engineering, Vellore Institute of Technology, Chennai.", font_size=12, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=16)
+    p("I hereby declare that the thesis entitled “EEG-BASED EXOSKELETON CONTROL FOR UPPER- AND LOWER-LIMB NEUROREHABILITATION” submitted by me, PARDEEP SINGH (Register No. 23BRS1123), for the award of the degree of Bachelor of Technology in Computer Science and Engineering (Artificial Intelligence and Robotics), Vellore Institute of Technology, Chennai is a record of bonafide work carried out by me under the supervision of my Project Guide, School of Computer Science and Engineering, Vellore Institute of Technology, Chennai.", font_size=12, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=16)
     p("I further declare that the work reported in this thesis has not been submitted and will not be submitted, either in part or in full, for the award of any other degree or diploma in this institute or any other institute or university.", font_size=12, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=36)
 
     dec_tbl = doc.add_table(rows=2, cols=2)
@@ -347,7 +353,7 @@ def create_report():
     # 4. CERTIFICATE
     p("School of Computer Science and Engineering", font_size=14, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=12)
     p("CERTIFICATE", font_size=16, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=0, space_after=18)
-    p("This is to certify that the report entitled \u201cEEG-BASED EXOSKELETON CONTROL FOR UPPER- AND LOWER-LIMB NEUROREHABILITATION\u201d is prepared and submitted by PARDEEP SINGH (Register No: 23BRS1123) to Vellore Institute of Technology, Chennai, in partial fulfillment of the requirement for the award of the degree of Bachelor of Technology in Computer Science and Engineering (Artificial Intelligence and Robotics) is a bonafide record carried out under my guidance. The project fulfills the requirements as per the regulations of this University and in my opinion meets the necessary standards for submission. The contents of this report have not been submitted and will not be submitted either in part or in full, for the award of any other degree or diploma and the same is certified.", font_size=12, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=24)
+    p("This is to certify that the report entitled “EEG-BASED EXOSKELETON CONTROL FOR UPPER- AND LOWER-LIMB NEUROREHABILITATION” is prepared and submitted by PARDEEP SINGH (Register No: 23BRS1123) to Vellore Institute of Technology, Chennai, in partial fulfillment of the requirement for the award of the degree of Bachelor of Technology in Computer Science and Engineering (Artificial Intelligence and Robotics) is a bonafide record carried out under my guidance. The project fulfills the requirements as per the regulations of this University and in my opinion meets the necessary standards for submission. The contents of this report have not been submitted and will not be submitted either in part or in full, for the award of any other degree or diploma and the same is certified.", font_size=12, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=24)
 
     cert_tbl = doc.add_table(rows=6, cols=2)
     cert_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -392,9 +398,9 @@ def create_report():
     # 5. ABSTRACT
     p("ABSTRACT", font_size=16, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=18)
     p("Post-stroke motor impairments and spinal cord injuries afflict over 15 million individuals annually, necessitating prolonged neurorehabilitation to stimulate neuroplastic motor recovery. While brain-computer interfaces (BCIs) paired with robotic exoskeletons have shown immense clinical efficacy, conventional solutions remain confined to specialized laboratories due to cumbersome 64-channel wet-electrode scalp caps, complex multi-minute calibration protocols, and severe vulnerability to ocular and motion artifacts. This project presents the design, mathematical formulation, edge-AI deployment, and verification of a unified embedded BCI architecture for cross-limb neurorehabilitation that entirely eliminates scalp caps in favor of a discreet, around-the-ear electrode array (OpenBCI Open-cEEGrid, 16 channels, 250 Hz).", font_size=12, space_after=10)
-    p("The architecture implements a four-tier processing hierarchy connecting biosignal acquisition to real-time exoskeleton actuation. At the edge host level (NVIDIA Jetson Orin Nano), incoming telemetry is conditioned through a zero-phase 4th-order Butterworth bandpass filter (0.5\u201345.0 Hz) and a 50 Hz IIR notch filter (Q=30) operating over a thread-safe circular ring buffer (2.0s window, 100 ms step). Feature extraction concurrently decodes four distinct biological intent signals: (1) time-locked tactile/auditory P300 Event-Related Potentials (ERP) within the 250\u2013500 ms post-stimulus window; (2) relative log-power alpha rhythms (8\u201313 Hz) for cognitive workload monitoring; (3) temporalis muscle high-gamma bursts (30\u201345 Hz) for deliberate jaw-clench discrete triggering; and (4) periauricular differential electrooculography (EOG) for immediate double-blink safety veto.", font_size=12, space_after=10)
-    p("Classification is executed using Stepwise Linear Discriminant Analysis (SWLDA) with statistical forward feature selection, alongside LDA for workload discrimination. A stateful priority arbitrator resolves conflicting intents via a strict four-level hierarchy, enforcing a 300 ms dwell-time confirmation gate to suppress involuntary triggers and an immediate 500 ms lockout upon blink-veto detection. Validated intents are serialized into a robust 7-byte binary UART frame protected by CRC-8/MAXIM checksums and transmitted at 115200 baud to an ESP32-P4 microcontroller. Dual-core FreeRTOS firmware coordinates trapezoidal trajectory generation across PCA9685 PWM servo drivers (5-DOF cable-driven hand module) and dual L298N H-bridge motor controllers (2-DOF discrete-stepping leg module).", font_size=12, space_after=10)
-    p("Rigorous experimental validation across benchmark physiological datasets and synthetic streams demonstrates 86.1% classification accuracy (AUC = 0.938) for P300 intent detection, 96.5% accuracy for jaw-clench triggering, and a 12.5 ms response time for double-blink emergency veto. In-vivo validation on the wireless 8-channel Qneuro H100 headset with 57,250 human electrophysiological samples achieved 87.0% accuracy in 3-class motor intent classification (Rest vs. Hand vs. Leg), 83.8% in 5-class lateralized classification, and 100% sensitivity with 0% false alarms for emergency double-blink veto and jaw-clench safety interrupts. The total computational pipeline consumes only 9.81 ms per cycle, operating with a 10.2\u00d7 headroom factor within the 100 ms soft real-time budget. The resulting testbed provides a viable, user-friendly, and portable cross-limb neurorehabilitation platform.", font_size=12, space_after=14)
+    p("The architecture implements a four-tier processing hierarchy connecting biosignal acquisition to real-time exoskeleton actuation. At the edge host level (NVIDIA Jetson Orin Nano), incoming telemetry is conditioned through a zero-phase 4th-order Butterworth bandpass filter (0.5–45.0 Hz) and a 50 Hz IIR notch filter (Q=30) operating over a thread-safe circular ring buffer (2.0s window, 100 ms step). Feature extraction concurrently decodes four distinct biological intent signals: (1) time-locked tactile/auditory P300 Event-Related Potentials (ERP) within the 250–500 ms post-stimulus window; (2) relative log-power alpha rhythms (8–13 Hz) for cognitive workload monitoring; (3) temporalis muscle high-gamma bursts (30–45 Hz) for deliberate jaw-clench discrete triggering; and (4) periauricular differential electrooculography (EOG) for immediate double-blink safety veto.", font_size=12, space_after=10)
+    p("Classification is executed using Stepwise Linear Discriminant Analysis (SWLDA) with statistical forward feature selection, alongside LDA for workload discrimination. A stateful priority arbitrator resolves conflicting intents via a strict five-level hierarchy, enforcing a 300 ms dwell-time confirmation gate to suppress involuntary triggers and an immediate 500 ms lockout upon blink-veto detection. Validated intents are serialized into a robust 7-byte binary UART frame protected by CRC-8/MAXIM checksums and transmitted at 115200 baud to an ESP32-P4 microcontroller. Dual-core FreeRTOS firmware coordinates trapezoidal trajectory generation across PCA9685 PWM servo drivers (5-DOF cable-driven hand module) and dual L298N H-bridge motor controllers (2-DOF discrete-stepping leg module).", font_size=12, space_after=10)
+    p("Rigorous experimental validation across benchmark physiological datasets and synthetic streams demonstrates 86.0% classification accuracy (AUC = 0.884) for P300 intent detection, 96.5% accuracy for jaw-clench triggering, and a 12.5 ms response time for double-blink emergency veto. In-vivo validation on the wireless 8-channel Qneuro H100 headset with 57,250 human electrophysiological samples achieved 87.0% accuracy in 3-class motor intent classification (Rest vs. Hand vs. Leg), 83.8% in 5-class lateralized classification, and 100% sensitivity with 0% false alarms for emergency double-blink veto and jaw-clench safety interrupts. The total computational pipeline consumes only 9.81 ms per cycle, operating with a 10.2× headroom factor within the 100 ms soft real-time budget. The resulting testbed provides a viable, user-friendly, and portable cross-limb neurorehabilitation platform.", font_size=12, space_after=14)
     p("Keywords: Brain-Computer Interface (BCI), Around-the-Ear EEG, cEEGrid, Exoskeleton Control, Neurorehabilitation, Stepwise LDA, Edge-AI, Jetson Orin Nano, ESP32-P4, Emergency Blink-Veto, Qneuro H100, Motor Intent Classification.", font_size=11, bold=True, space_after=0)
     doc.add_page_break()
 
@@ -437,52 +443,52 @@ def create_report():
         ("  2.5 Embedded Classifiers and Edge Intelligence", "8"),
         ("  2.6 Multi-Tier Safety Interlocks and Clinical Risk Mitigation", "9"),
         ("  2.7 Literature Synthesis Matrix (17 Core Publications)", "9"),
-        ("  2.8 Identification of Research Gaps", "11"),
+        ("  2.8 Identification of Research Gaps", "12"),
         ("  2.9 Chapter Summary", "12"),
-        ("CHAPTER 3: METHODOLOGY AND SYSTEM ARCHITECTURE", "13"),
-        ("  3.1 Four-Tier System Architecture Overview", "13"),
-        ("  3.2 Tier 1: Biosignal Acquisition Subsystem", "14"),
-        ("  3.3 Tier 2: Preprocessing and Signal Conditioning Pipeline", "14"),
-        ("  3.4 Feature Extraction Formulations", "15"),
-        ("  3.5 Classifier Algorithms: SWLDA and Workload LDA", "16"),
-        ("  3.6 Priority Arbitrator and Safety State Machine", "16"),
-        ("  3.7 Binary Telemetry Protocol and Packet Serialization", "18"),
-        ("  3.8 Tier 3: Real-Time Actuation and FreeRTOS MCU Architecture", "18"),
-        ("  3.9 Tier 4: Physical Testbed (Hand and Leg Modules)", "19"),
-        ("  3.10 Edge System Power Budget and Operational Runtime", "19"),
-        ("  3.11 Clinical Failure Modes and Risk Mitigation Register (ISO 14971)", "21"),
-        ("  3.12 Chapter Summary", "22"),
-        ("CHAPTER 4: EXPERIMENTAL RESULTS AND DISCUSSION (BENCHMARK EVALUATION)", "23"),
-        ("  4.1 Signal Conditioning and Power Spectral Density Analysis", "23"),
-        ("  4.2 P300 ERP Grand Average Morphology", "24"),
-        ("  4.3 Classification Performance and Confusion Matrices", "24"),
-        ("  4.4 Discriminative Power: ROC and Precision-Recall Curves", "26"),
-        ("  4.5 Safety Interlock: Periauricular EOG Double-Blink Veto", "26"),
-        ("  4.6 Myoelectric Triggering: Temporalis EMG High-Gamma Spectrogram", "27"),
-        ("  4.7 End-to-End Latency and Real-Time Timing Budget Compliance", "28"),
-        ("  4.8 Longitudinal False Positive Rate Stability", "29"),
-        ("  4.9 Edge Compute Resource Utilization on Jetson Orin Nano", "30"),
-        ("  4.10 Chapter Summary", "30"),
-        ("CHAPTER 5: IN-VIVO VALIDATION ON QNEURO H100 HEADSET", "32"),
-        ("  5.1 Live Data Acquisition Protocol and Experimental Setup", "32"),
-        ("  5.2 Continuous Multi-Channel Signal Conditioning", "36"),
-        ("  5.3 Spectral Power and Time-Frequency Signatures", "37"),
-        ("  5.4 Veto and Safety Interrupt Calibration on Headset Montage", "39"),
-        ("  5.5 Sensorimotor Rhythm ERD and Multi-Class Movement Classification", "40"),
-        ("  5.6 Channel Quality Diagnostics and Feature Importance", "44"),
-        ("  5.7 Real-Time Actuator Arbitration Progression", "46"),
-        ("  5.8 In-Vivo Performance Summary Matrix", "47"),
-        ("  5.9 Chapter Summary", "47"),
-        ("CHAPTER 6: CONCLUSION AND FUTURE SCOPE", "49"),
-        ("  6.1 Summary of Contributions", "49"),
-        ("  6.2 Milestone Verification Against Roadmap Targets", "49"),
-        ("  6.3 Current Technical Limitations", "50"),
-        ("  6.4 Future Clinical and Deep Learning Roadmap", "51"),
-        ("  6.5 Chapter Summary", "51"),
-        ("REFERENCES (APA 7th Format)", "52"),
-        ("APPENDIX A: INDIVIDUAL CONTRIBUTION STATEMENT AND GUIDE FEEDBACK INCORPORATION", "54"),
-        ("APPENDIX B: CORE EMBEDDED PRODUCTION CODE IMPLEMENTATION", "57"),
-        ("APPENDIX C: HARDWARE BILL OF MATERIALS AND PIN MAPPINGS", "60"),
+        ("CHAPTER 3: METHODOLOGY AND SYSTEM ARCHITECTURE", "14"),
+        ("  3.1 Four-Tier System Architecture Overview", "14"),
+        ("  3.2 Tier 1: Biosignal Acquisition Subsystem", "15"),
+        ("  3.3 Tier 2: Preprocessing and Signal Conditioning Pipeline", "15"),
+        ("  3.4 Feature Extraction Formulations", "16"),
+        ("  3.5 Classifier Algorithms: SWLDA and Workload LDA", "17"),
+        ("  3.6 Priority Arbitrator and Safety State Machine", "17"),
+        ("  3.7 Binary Telemetry Protocol and Packet Serialization", "19"),
+        ("  3.8 Tier 3: Real-Time Actuation and FreeRTOS MCU Architecture", "19"),
+        ("  3.9 Tier 4: Physical Testbed (Hand and Leg Modules)", "20"),
+        ("  3.10 Edge System Power Budget and Operational Runtime", "20"),
+        ("  3.11 Clinical Failure Modes and Risk Mitigation Register (ISO 14971)", "22"),
+        ("  3.12 Chapter Summary", "23"),
+        ("CHAPTER 4: EXPERIMENTAL RESULTS AND DISCUSSION (BENCHMARK EVALUATION)", "25"),
+        ("  4.1 Signal Conditioning and Power Spectral Density Analysis", "25"),
+        ("  4.2 P300 ERP Grand Average Morphology", "26"),
+        ("  4.3 Classification Performance and Confusion Matrices", "26"),
+        ("  4.4 Discriminative Power: ROC and Precision-Recall Curves", "28"),
+        ("  4.5 Safety Interlock: Periauricular EOG Double-Blink Veto", "28"),
+        ("  4.6 Myoelectric Triggering: Temporalis EMG High-Gamma Spectrogram", "29"),
+        ("  4.7 End-to-End Latency and Real-Time Timing Budget Compliance", "30"),
+        ("  4.8 Longitudinal False Positive Rate Stability", "31"),
+        ("  4.9 Edge Compute Resource Utilization on Jetson Orin Nano", "32"),
+        ("  4.10 Chapter Summary", "32"),
+        ("CHAPTER 5: IN-VIVO VALIDATION ON QNEURO H100 HEADSET", "34"),
+        ("  5.1 Live Data Acquisition Protocol and Experimental Setup", "34"),
+        ("  5.2 Continuous Multi-Channel Signal Conditioning", "38"),
+        ("  5.3 Spectral Power and Time-Frequency Signatures", "39"),
+        ("  5.4 Veto and Safety Interrupt Calibration on Headset Montage", "41"),
+        ("  5.5 Sensorimotor Rhythm ERD and Multi-Class Movement Classification", "42"),
+        ("  5.6 Channel Quality Diagnostics and Feature Importance", "46"),
+        ("  5.7 Real-Time Actuator Arbitration Progression", "48"),
+        ("  5.8 In-Vivo Performance Summary Matrix", "49"),
+        ("  5.9 Chapter Summary", "49"),
+        ("CHAPTER 6: CONCLUSION AND FUTURE SCOPE", "51"),
+        ("  6.1 Summary of Contributions", "51"),
+        ("  6.2 Milestone Verification Against Roadmap Targets", "51"),
+        ("  6.3 Current Technical Limitations", "52"),
+        ("  6.4 Future Clinical and Deep Learning Roadmap", "53"),
+        ("  6.5 Chapter Summary", "53"),
+        ("REFERENCES (APA 7th Format)", "54"),
+        ("APPENDIX A: INDIVIDUAL CONTRIBUTION STATEMENT AND GUIDE FEEDBACK INCORPORATION", "56"),
+        ("APPENDIX B: CORE EMBEDDED PRODUCTION CODE IMPLEMENTATION", "60"),
+        ("APPENDIX C: HARDWARE BILL OF MATERIALS AND PIN MAPPINGS", "63"),
     ]
     toc_tbl = doc.add_table(rows=0, cols=2)
     toc_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -515,22 +521,22 @@ def create_report():
     # 8. LIST OF TABLES
     p("LIST OF TABLES", font_size=16, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=18)
     lot_data = [
-        ("Table 2.1", "Comprehensive Literature Synthesis Matrix (17 Core Publications)", "9"),
+        ("Table 2.1", "Comprehensive Literature Synthesis Matrix (17 Core Publications)", "10"),
         ("Table 2.2", "Identification of Critical Research Gaps and Project Resolution Strategy", "12"),
-        ("Table 3.1", "UART Binary Telemetry Packet Structure (7-Byte Frame Protocol)", "18"),
-        ("Table 3.2", "ESP32-P4 FreeRTOS Dual-Core Real-Time Task Allocation", "19"),
-        ("Table 3.3", "Edge System Electrical Power Budget and Battery Operational Runtime", "19"),
-        ("Table 3.4", "Clinical Failure Modes and Risk Mitigation Register (ISO 14971)", "21"),
-        ("Table 4.1", "BCI Classifier Performance Summary Metrics Across All Operational Modes", "25"),
-        ("Table 4.2", "Five-Fold Stratified Cross-Validation Results Breakdown", "25"),
-        ("Table 4.3", "End-to-End Computational Latency Breakdown Against 100 ms Real-Time Budget", "28"),
-        ("Table 5.1", "Qneuro H100 Live Acquisition Session Parameters and Dataset Statistics", "32"),
-        ("Table 5.2", "Real-World Qneuro H100 Headset Performance Summary Matrix (57,250 In-Vivo Samples)", "47"),
-        ("Table 6.1", "Comprehensive Verification Matrix Against Project Roadmap Targets", "49"),
-        ("Table A.1", "Detailed Individual Contribution Breakdown (Pardeep Singh vs Aastha Kumari)", "54"),
-        ("Table A.2", "Review Committee and Guide Feedback Incorporation Tracking Matrix", "55"),
-        ("Table C.1", "Consolidated Hardware Procurement Specification and Bill of Materials", "61"),
-        ("Table C.2", "ESP32-P4 MCU and PCA9685 Peripheral Hardware Pinout Mapping", "62"),
+        ("Table 3.1", "UART Binary Telemetry Packet Structure (7-Byte Frame Protocol)", "19"),
+        ("Table 3.2", "ESP32-P4 FreeRTOS Dual-Core Real-Time Task Allocation", "20"),
+        ("Table 3.3", "Edge System Electrical Power Budget and Battery Operational Runtime", "21"),
+        ("Table 3.4", "Clinical Failure Modes and Risk Mitigation Register (ISO 14971)", "22"),
+        ("Table 4.1", "BCI Classifier Performance Summary Metrics Across All Operational Modes", "27"),
+        ("Table 4.2", "Five-Fold Stratified Cross-Validation Results Breakdown", "27"),
+        ("Table 4.3", "End-to-End Computational Latency Breakdown Against 100 ms Real-Time Budget", "30"),
+        ("Table 5.1", "Qneuro H100 Live Acquisition Session Parameters and Dataset Statistics", "34"),
+        ("Table 5.2", "Real-World Qneuro H100 Headset Performance Summary Matrix (57,250 In-Vivo Samples)", "49"),
+        ("Table 6.1", "Comprehensive Verification Matrix Against Project Roadmap Targets", "52"),
+        ("Table A.1", "Detailed Individual Contribution Breakdown (Pardeep Singh vs Aastha Kumari)", "56"),
+        ("Table A.2", "Review Committee and Guide Feedback Incorporation Tracking Matrix", "57"),
+        ("Table C.1", "Consolidated Hardware Procurement Specification and Bill of Materials", "63"),
+        ("Table C.2", "ESP32-P4 MCU and PCA9685 Peripheral Hardware Pinout Mapping", "64"),
     ]
     lot_tbl = doc.add_table(rows=0, cols=3)
     lot_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -557,32 +563,32 @@ def create_report():
     # 9. LIST OF FIGURES
     p("LIST OF FIGURES", font_size=16, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER, space_before=10, space_after=18)
     lof_data = [
-        ("Figure 3.1", "Four-Tier End-to-End System Architecture Block Diagram", "13"),
-        ("Figure 3.2", "Priority Arbitration State Machine and Dwell-Time Safety Flowchart", "17"),
-        ("Figure 4.1", "Power Spectral Density (PSD) Comparison: Raw vs Filtered EEG Signals", "23"),
-        ("Figure 4.2", "P300 ERP Grand Average Waveform for Oddball Target vs Frequent Non-Target", "24"),
-        ("Figure 4.3", "Confusion Matrices Across Primary Classifiers (SWLDA P300 and Workload LDA)", "24"),
-        ("Figure 4.4", "Receiver Operating Characteristic (ROC) and Precision-Recall (PR) Curves", "26"),
-        ("Figure 4.5", "Periauricular Differential EOG Double-Blink Detection and Veto Lockout Trace", "26"),
-        ("Figure 4.6", "STFT Time-Frequency Spectrogram of Temporalis High-Gamma Jaw-Clench Burst", "27"),
-        ("Figure 4.7", "Pipeline Execution Latency Breakdown Waterfall vs 100 ms Real-Time Budget", "29"),
-        ("Figure 4.8", "Cumulative False Positive Trigger Count Stability Over 10-Minute Resting Windows", "30"),
-        ("Figure 5.1", "Data Acquisition Screenshot — Double-Blink EOG Recording Session", "33"),
-        ("Figure 5.2", "Data Acquisition Screenshot — Jaw-Clench EMG Recording Session", "34"),
-        ("Figure 5.3", "Data Acquisition Screenshot — Left-Hand Motor Execution Recording Session", "35"),
-        ("Figure 5.4", "Data Acquisition Screenshot — Right-Hand Motor Execution Recording Session", "36"),
-        ("Figure 5.5", "Continuous 8-Channel EEG Comparison Showing Raw ADC Values and Zero-Phase Preprocessed Waveforms", "36"),
-        ("Figure 5.6", "Power Spectral Density Across Experimental Conditions for Frontal/Temporal and Central Channels", "38"),
-        ("Figure 5.7", "Multi-Panel STFT Spectrograms Demonstrating Distinct Spectral Signatures", "39"),
-        ("Figure 5.8", "Continuous Differential EOG Trace and Zoomed Dual-Peak Blink Waveform with +40.0 µV Threshold Markers", "40"),
-        ("Figure 5.9", "Continuous High-Gamma Envelope and Probability Density Distribution", "40"),
-        ("Figure 5.10", "Distribution of Sensorimotor Mu (8–13 Hz) and Beta (14–30 Hz) Power Showing Significant Suppression (ERD)", "40"),
-        ("Figure 5.11", "3-Class Movement Intent Confusion Matrices for LDA and Random Forest", "42"),
-        ("Figure 5.12", "5-Class Lateralized Confusion Matrix Demonstrating Strong Diagonal Dominance (Random Forest)", "43"),
-        ("Figure 5.13", "One-vs-Rest ROC Curves and Precision-Recall Curves", "44"),
-        ("Figure 5.14", "Electrode DC Offset, RMS Noise Floor, and Health Classification Matrix Across All 8 Qneuro Channels", "44"),
-        ("Figure 5.15", "Top 12 Spatial-Frequency Features Ranked by Relative Gini Importance", "45"),
-        ("Figure 5.16", "Full 229-Second Real-Time Arbitration Timeline Showing Ground Truth Cues, Interrupts, and Commands", "46"),
+        ("Figure 3.1", "Four-Tier End-to-End System Architecture Block Diagram", "14"),
+        ("Figure 3.2", "Priority Arbitration State Machine and Dwell-Time Safety Flowchart", "18"),
+        ("Figure 4.1", "Power Spectral Density (PSD) Comparison: Raw vs Filtered EEG Signals", "25"),
+        ("Figure 4.2", "P300 ERP Grand Average Waveform for Oddball Target vs Frequent Non-Target", "26"),
+        ("Figure 4.3", "Confusion Matrices Across Primary Classifiers (SWLDA P300 and Workload LDA)", "27"),
+        ("Figure 4.4", "Receiver Operating Characteristic (ROC) and Precision-Recall (PR) Curves", "28"),
+        ("Figure 4.5", "Periauricular Differential EOG Double-Blink Detection and Veto Lockout Trace", "29"),
+        ("Figure 4.6", "STFT Time-Frequency Spectrogram of Temporalis High-Gamma Jaw-Clench Burst", "29"),
+        ("Figure 4.7", "Pipeline Execution Latency Breakdown Waterfall vs 100 ms Real-Time Budget", "31"),
+        ("Figure 4.8", "Cumulative False Positive Trigger Count Stability Over 10-Minute Resting Windows", "32"),
+        ("Figure 5.1", "Data Acquisition Screenshot — Double-Blink EOG Recording Session", "35"),
+        ("Figure 5.2", "Data Acquisition Screenshot — Jaw-Clench EMG Recording Session", "36"),
+        ("Figure 5.3", "Data Acquisition Screenshot — Left-Hand Motor Execution Recording Session", "37"),
+        ("Figure 5.4", "Data Acquisition Screenshot — Right-Hand Motor Execution Recording Session", "38"),
+        ("Figure 5.5", "Continuous 8-Channel EEG Comparison Showing Raw ADC Values and Zero-Phase Preprocessed Waveforms", "39"),
+        ("Figure 5.6", "Power Spectral Density Across Experimental Conditions for Frontal/Temporal and Central Channels", "40"),
+        ("Figure 5.7", "Multi-Panel STFT Spectrograms Demonstrating Distinct Spectral Signatures", "41"),
+        ("Figure 5.8", "Continuous Differential EOG Trace and Zoomed Dual-Peak Blink Waveform with +40.0 µV Threshold Markers", "42"),
+        ("Figure 5.9", "Continuous High-Gamma Envelope and Probability Density Distribution", "42"),
+        ("Figure 5.10", "Distribution of Sensorimotor Mu (8–13 Hz) and Beta (14–30 Hz) Power Showing Significant Suppression (ERD)", "43"),
+        ("Figure 5.11", "3-Class Movement Intent Confusion Matrices for LDA and Random Forest", "44"),
+        ("Figure 5.12", "5-Class Lateralized Confusion Matrix Demonstrating Strong Diagonal Dominance (Random Forest)", "45"),
+        ("Figure 5.13", "One-vs-Rest ROC Curves and Precision-Recall Curves", "46"),
+        ("Figure 5.14", "Electrode DC Offset, RMS Noise Floor, and Health Classification Matrix Across All 8 Qneuro Channels", "47"),
+        ("Figure 5.15", "Top 12 Spatial-Frequency Features Ranked by Relative Gini Importance", "48"),
+        ("Figure 5.16", "Full 229-Second Real-Time Arbitration Timeline Showing Ground Truth Cues, Interrupts, and Commands", "48"),
     ]
     lof_tbl = doc.add_table(rows=0, cols=3)
     lof_tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -735,7 +741,7 @@ def create_report():
 
     h2("2.2 Taxonomy of Biosignal Modalities: MI vs ERP vs Periauricular Signals")
     p("Motor Imagery (MI) based on sensorimotor rhythm Event-Related Desynchronization/Synchronization (ERD/ERS) has traditionally served as the primary paradigm for neurorehabilitation BCIs (Zare et al., 2025; Zhao et al., 2024). However, as demonstrated by De la Cruz-S\u00e1nchez et al. (2025), robust MI classification requires electrodes placed directly over the motor cortex (C3, Cz, C4). When electrodes are shifted to the periauricular temporal region, sensorimotor ERD attenuates below detectable signal-to-noise thresholds (Knierim et al., 2021).")
-    p("Conversely, Event-Related Potentials\u2014specifically the P300 oddball response\u2014are widely distributed across temporal and parietal cortices. Eidel et al. (2024) successfully demonstrated that tactile and auditory P300 potentials can be recorded reliably via the around-the-ear cEEGrid array, achieving single-trial classification accuracies of 63\u201368%, significantly above chance level. Furthermore, Zhu et al. (2020) and King et al. (2025) validated that hybrid systems combining electrooculography (EOG) and electromyography (EMG) achieve dramatically superior reliability and safety compared to unimodal EEG systems.")
+    p("Conversely, Event-Related Potentials\u2014specifically the P300 oddball response\u2014are widely distributed across temporal and parietal cortices. Eidel et al. (2024) successfully demonstrated that tactile and auditory P300 potentials can be recorded reliably via the around-the-ear cEEGrid array, achieving single-trial classification accuracies of 63\u201368%, significantly above chance level. The foundational taxonomy of the hybrid BCI formulated by Pfurtscheller et al. (2006) established that fusing distinct biosignal streams markedly improves decoding reliability while reducing unintended triggers. Building on this framework, Zhu et al. (2020) and King et al. (2025) validated that hybrid systems combining electroencephalography, electrooculography (EOG), and electromyography (EMG) achieve dramatically superior reliability and safety compared to unimodal EEG systems.")
     p("Recent advances in deep learning for EEG classification, particularly the Convolutional Transformer Network (CTNet) proposed by Zhao et al. (2024), have demonstrated impressive motor imagery decoding accuracies exceeding 91% on high-density 64-channel scalp recordings. However, such architectures require substantial GPU compute resources and multi-million parameter models, rendering them unsuitable for real-time edge deployment on low-power embedded platforms without significant model compression. The cognitive load detection framework proposed by Yedukondalu et al. (2024) using time-frequency EEG features with Bi-LSTM networks provides complementary insights into fatigue monitoring, though its computational overhead similarly exceeds embedded budgets.")
 
     h2("2.3 Around-the-Ear EEG (cEEGrid) State-of-the-Art")
@@ -751,7 +757,7 @@ def create_report():
     p("Modern rehabilitation robotics mandates real-time safety compliance (IEC 60601-1 / ISO 13482). Classical cloud or PC-tethered pipelines exhibit high jitter (30\u2013120 ms) and communication drops. Distributed architectures segregating heavy neural feature pipelines on embedded edge processors (NVIDIA Jetson) and deterministic real-time PWM motion profiling on dual-core microcontrollers (ESP32 FreeRTOS) represent the state of the art in medical cyber-physical systems.")
 
     h2("2.6 Multi-Tier Safety Interlocks and Clinical Risk Mitigation")
-    p("In a comprehensive survey on exoskeleton safety hazards across 84 clinical centers, Massardi et al. (2023) identified that unintended actuator triggers and failure to stop during patient spasms constitute the highest-risk failure modes. The authors emphasized that pure software BCIs without redundant hardware interlocks are clinically unacceptable. This underscores the necessity of a layered safety architecture where physiological veto mechanisms (e.g. voluntary double-blink EOG) override autonomous controller states.")
+    p("Clinical translation of active neuro-assistive orthoses is strictly governed by medical safety standards, principally ISO 14971 (Application of risk management to medical devices), ISO 13482 (Safety requirements for personal care and physical assistant robots), and IEC 60601-1 (Medical electrical equipment safety). To satisfy ISO 13482 constraints, safety architecture cannot rely on software watchdog routines alone; it mandates deterministic multi-tiered hardware interlocks, immediate biological veto channels (< 15 ms latency), mechanical hard stops, and hardwired power-relay cutoffs. Coupling biological veto gating (periauricular double-blink earEOG) directly to MCU interrupt lines provides fail-safe clinical containment against involuntary spasms or neural decoder glitches.")
 
     h2("2.7 Literature Synthesis Matrix (17 Core Publications)")
     p("Table 2.1 summarizes the 17 core publications reviewed, detailing their biosignal modality, target hardware, classification approach, and limitations.")
@@ -777,9 +783,9 @@ def create_report():
         ["16", "Ma et al. (2024)", "Lower Limb BCI", "Gait Exoskeleton", "Attention MI", "Discrete state transitions essential for leg stability."],
         ["17", "Wang et al. (2023)", "Digital Twin Exoskeleton", "Lower Limb Robotics", "State Machine", "Digital twin monitoring; no lightweight around-ear EEG."],
     ]
+    add_caption(doc, "Table 2.1: Comprehensive Literature Synthesis Matrix (17 Core Publications)", is_table=True)
     tbl_lit = doc.add_table(rows=1, cols=6)
     format_table(tbl_lit, lit_widths, lit_headers, lit_data)
-    add_caption(doc, "Table 2.1: Comprehensive Literature Synthesis Matrix (17 Core Publications)", is_table=True)
 
     h2("2.8 Identification of Research Gaps")
     p("From the synthesis of the 17 core publications, three glaring research gaps emerge:")
@@ -794,9 +800,9 @@ def create_report():
         ["Cross-Limb Silo", "Sieghartsleitner (2024): Proved cross-limb neuroplastic transfer,\nbut on $40k+ commercial recoveriX system.", "Unified MODULE_HAND (0x01) + MODULE_LEG (0x02)\narchitecture on single ESP32-P4 MCU."],
         ["Safety Latency", "Massardi (2023): Surveyed 84 centers;\nunintended triggers are highest-risk failure.", "Sub-15 ms double-blink EOG veto with 500 ms lockout\ndirectly from periauricular electrodes."],
     ]
+    add_caption(doc, "Table 2.2: Identification of Critical Research Gaps and Project Resolution Strategy", is_table=True)
     tbl_gap = doc.add_table(rows=1, cols=3)
     format_table(tbl_gap, gap_widths, gap_headers, gap_data)
-    add_caption(doc, "Table 2.2: Identification of Critical Research Gaps and Project Resolution Strategy", is_table=True)
 
     h2("2.9 Chapter Summary")
     p("This chapter reviewed 17 core publications across BCI neurorehabilitation, periauricular biosensing, exoskeleton mechanics, edge machine learning, and medical safety interlocks. The synthesis revealed three fundamental research voids: the scalp-cap wearability gap, the cross-limb silo gap, and the safety latency gap. By pairing around-the-ear multi-biosignal arrays with low-complexity SWLDA classifiers, dual-module actuation, and sub-15ms EOG veto overrides, the proposed architecture directly resolves each identified void.")
@@ -875,9 +881,9 @@ def create_report():
         ["0x05", "Confidence", "uint8", "0 - 100", "Classifier certainty percentage (0-100%)."],
         ["0x06", "CRC-8 Checksum", "uint8", "0x00 - 0xFF", "CRC-8/MAXIM over bytes 0..5 (poly 0x31 reflected)."],
     ]
+    add_caption(doc, "Table 3.1: UART Binary Telemetry Packet Structure (7-Byte Frame Protocol)", is_table=True)
     tbl_pkt = doc.add_table(rows=1, cols=5)
     format_table(tbl_pkt, pkt_widths, pkt_headers, pkt_data)
-    add_caption(doc, "Table 3.1: UART Binary Telemetry Packet Structure (7-Byte Frame Protocol)", is_table=True)
 
     h2("3.8 Tier 3: Real-Time Actuation and FreeRTOS MCU Architecture")
     p("The ESP32-P4 microcontroller runs dual-core FreeRTOS firmware to guarantee deterministic motor control without timing jitter:")
@@ -890,9 +896,9 @@ def create_report():
         ["task_motor_ctrl", "Priority 3 (Medium)", "Core 1", "20 ms (50 Hz)", "Trapezoidal velocity profiling, I2C PCA9685 PWM generation."],
         ["task_heartbeat", "Priority 1 (Lowest)", "Core 1", "500 ms (2 Hz)", "Status LED blinking, watchdog timer feed, UART ACK reply."],
     ]
+    add_caption(doc, "Table 3.2: ESP32-P4 FreeRTOS Dual-Core Real-Time Task Allocation", is_table=True)
     tbl_rtos = doc.add_table(rows=1, cols=5)
     format_table(tbl_rtos, rtos_widths, rtos_headers, rtos_data)
-    add_caption(doc, "Table 3.2: ESP32-P4 FreeRTOS Dual-Core Real-Time Task Allocation", is_table=True)
 
     h2("3.9 Tier 4: Physical Testbed (Hand and Leg Modules)")
     p("The physical testbed comprises two distinct modules: (1) an anthropomorphic 5-DOF 3D-printed hand exoskeleton articulated via high-tensile braided Bowden cables driven by 5× MG996R metal-gear servomotors (PCA9685 I2C interface); and (2) a 2-DOF articulated leg linkage driven by two 12V high-torque DC planetary gear motors (50 RPM) via dual L298N H-bridges, equipped with hardware limit switches to establish physical hard-stops at anatomical joint limits.")
@@ -911,9 +917,9 @@ def create_report():
         ["Leg Module (2x DC Gear Motors)", "12.0V DC", "800 mA", "3000 mA", "9.60 W", "36.00 W", "Direct 12V Motor Rail"],
         ["CONSOLIDATED SYSTEM TOTAL", "11.1V / 12.0V Rail", "2.49 A", "8.10 A", "24.44 W", "78.44 W", "4S LiPo (5000 mAh, ~2.8 hrs)"],
     ]
+    add_caption(doc, "Table 3.3: Edge System Electrical Power Budget and Battery Operational Runtime", is_table=True)
     tbl_pwr = doc.add_table(rows=1, cols=7)
     format_table(tbl_pwr, pwr_widths, pwr_headers, pwr_data, align_cols=[WD_ALIGN_PARAGRAPH.LEFT] + [WD_ALIGN_PARAGRAPH.RIGHT] * 5 + [WD_ALIGN_PARAGRAPH.LEFT])
-    add_caption(doc, "Table 3.3: Edge System Electrical Power Budget and Battery Operational Runtime", is_table=True)
 
     p("Under continuous multi-limb actuation cycles, the entire edge platform consumes an average power of 24.44 W with a peak transient draw of 78.44 W during simultaneous stall of hand servos and leg gearmotors. Powered by an external 4-cell Lithium-Polymer battery pack (14.8V nominal, 5,000 mAh, 74.0 Wh capacity with an 85% DC-DC step-down conversion efficiency), the system delivers 2.57 hours of continuous non-stop actuation—comfortably exceeding standard 45-minute clinical rehabilitation therapy sessions. To prevent motor back-EMF inductive voltage spikes from compromising the sensitive 24-bit ADS1299 biosignal converters or rebooting the Jetson host, complete electrical isolation is maintained: motor power rails are galvanically separated via optocouplers and dedicated high-current switching regulators.")
 
@@ -929,9 +935,9 @@ def create_report():
         ["Inductive Motor Voltage Spikes / Brownout", "Back-EMF spikes rebooting edge host or corrupting FreeRTOS telemetry.", "Moderate", "Optocoupler galvanic isolation, separate 12V motor battery rails, flyback clamping diodes, and CRC-8 packet checksums.", "Negligible"],
         ["Electrode Lead Detachment / Motion Artifacts", "Signal loss producing random spurious classifier output vectors.", "Moderate", "SignalQualityMonitor continuously tracking impedance proxies (<15 kΩ) and flatline detection, forcing zero-command fallback upon lead detachment.", "Negligible"],
     ]
+    add_caption(doc, "Table 3.4: Clinical Failure Modes and Risk Mitigation Register (ISO 14971)", is_table=True)
     tbl_risk = doc.add_table(rows=1, cols=5)
     format_table(tbl_risk, risk_widths, risk_headers, risk_data, align_cols=[WD_ALIGN_PARAGRAPH.LEFT, WD_ALIGN_PARAGRAPH.LEFT, WD_ALIGN_PARAGRAPH.CENTER, WD_ALIGN_PARAGRAPH.LEFT, WD_ALIGN_PARAGRAPH.CENTER])
-    add_caption(doc, "Table 3.4: Clinical Failure Modes and Risk Mitigation Register (ISO 14971)", is_table=True)
 
     p("The multi-layered risk mitigation strategy ensures that no single point of electrical, mechanical, or computational failure can result in physical injury to the patient. Residual risks across all categories are reduced to clinically acceptable or negligible levels.")
 
@@ -968,9 +974,9 @@ def create_report():
         ["Workload Alpha LDA", "86.2%", "86.1%", "84.7%", "85.4%", "0.895", "0.724"],
         ["Double-Blink EOG Veto", "98.5%", "97.8%", "99.2%", "98.5%", "—", "—"],
     ]
+    add_caption(doc, "Table 4.1: BCI Classifier Performance Summary Metrics Across All Operational Modes", is_table=True)
     tbl_clf = doc.add_table(rows=1, cols=7)
     format_table(tbl_clf, clf_widths, clf_headers, clf_data, align_cols=[WD_ALIGN_PARAGRAPH.LEFT] + [WD_ALIGN_PARAGRAPH.RIGHT] * 6)
-    add_caption(doc, "Table 4.1: BCI Classifier Performance Summary Metrics Across All Operational Modes", is_table=True)
 
     cv_headers = ["Cross-Validation Fold", "P300 Accuracy", "P300 F1-Score", "Workload Accuracy", "Workload F1-Score"]
     cv_widths = [1.8, 1.3, 1.3, 1.3, 1.3]
@@ -982,9 +988,9 @@ def create_report():
         ["Fold 5", "86.3%", "79.1%", "86.7%", "85.9%"],
         ["Mean ± Std Dev", "86.0 ± 0.9%", "78.9 ± 1.1%", "86.2 ± 0.7%", "85.5 ± 0.7%"],
     ]
+    add_caption(doc, "Table 4.2: Five-Fold Stratified Cross-Validation Results Breakdown", is_table=True)
     tbl_cv = doc.add_table(rows=1, cols=5)
     format_table(tbl_cv, cv_widths, cv_headers, cv_data, align_cols=[WD_ALIGN_PARAGRAPH.LEFT] + [WD_ALIGN_PARAGRAPH.RIGHT] * 4)
-    add_caption(doc, "Table 4.2: Five-Fold Stratified Cross-Validation Results Breakdown", is_table=True)
 
     h2("4.4 Discriminative Power: ROC and Precision-Recall Curves")
     p("Figure 4.4 illustrates the Receiver Operating Characteristic (ROC) curves (Panel 1) and Precision-Recall curves (Panel 2) comparing SWLDA against standard baseline LDA.")
@@ -1015,9 +1021,9 @@ def create_report():
         ["FreeRTOS & PWM Dispatch (ESP32-P4)", "1.80 ms", "1.80%", "UART interrupt and I2C PCA9685 write."],
         ["Total Computational Latency", "9.81 ms", "9.81%", "10.2× Headroom within 100 ms budget."],
     ]
+    add_caption(doc, "Table 4.3: End-to-End Computational Latency Breakdown Against 100 ms Real-Time Budget", is_table=True)
     tbl_lat = doc.add_table(rows=1, cols=4)
     format_table(tbl_lat, lat_widths, lat_headers, lat_data, align_cols=[WD_ALIGN_PARAGRAPH.LEFT, WD_ALIGN_PARAGRAPH.RIGHT, WD_ALIGN_PARAGRAPH.RIGHT, WD_ALIGN_PARAGRAPH.LEFT])
-    add_caption(doc, "Table 4.3: End-to-End Computational Latency Breakdown Against 100 ms Real-Time Budget", is_table=True)
 
     add_img("fig_4_7_latency_waterfall.png", "Figure 4.7: Pipeline Execution Latency Breakdown Waterfall vs 100 ms Real-Time Budget")
     p("Figure 4.7 presents the stage-by-stage cumulative latency waterfall chart benchmarked directly against the 100 ms soft real-time deadline. The entire computational pipeline consumes exactly 9.81 ms, with biosignal buffer ingestion taking 4.50 ms (45.9% of total compute), digital filtering consuming 1.20 ms (12.2%), feature extraction requiring 2.10 ms (21.4%), classifier inference taking an ultra-fast 0.06 ms (0.6%), serial packet packing requiring 0.15 ms (1.5%), and MCU FreeRTOS PWM actuation taking 1.80 ms (18.3%). This yields 90.19 ms of spare headroom per 100 ms window—a 10.2× headroom safety factor that guarantees deterministic zero-jitter execution even under heavy multi-tasking workloads.")
@@ -1063,9 +1069,9 @@ def create_report():
         ["Calibrated EOG Blink Threshold", "+40.0 \u00b5V (differential)"],
         ["Calibrated Jaw Clench Threshold", "+10.5 dB (high-gamma envelope)"],
     ]
+    add_caption(doc, "Table 5.1: Qneuro H100 Live Acquisition Session Parameters and Dataset Statistics", is_table=True)
     tbl_acq = doc.add_table(rows=1, cols=2)
     format_table(tbl_acq, acq_widths, acq_headers, acq_data)
-    add_caption(doc, "Table 5.1: Qneuro H100 Live Acquisition Session Parameters and Dataset Statistics", is_table=True)
 
     p("Figures 5.1–5.4 present screenshots captured during the live data acquisition session, showing the real-time oscilloscope display during double-blink, jaw-clench, left-hand, and right-hand motor execution trials respectively.")
     add_screenshot("double_blink.png", "Figure 5.1: Data Acquisition Screenshot — Double-Blink EOG Recording Session (real-time 8-channel oscilloscope view showing characteristic biphasic frontal dipole deflections during voluntary rapid double-blink execution)")
@@ -1143,9 +1149,9 @@ def create_report():
         ["Emergency Veto (P1)", "Double-Blink", "Diff. Peak (+40\u00b5V)", "100.0%", "1.000", "1.000", "1.000", "\u2014", "1.000"],
         ["Safety (P2)", "Jaw-Clench", "Gamma Env. (+10.5dB)", "100.0%", "1.000", "1.000", "1.000", "1.000", "1.000"],
     ]
+    add_caption(doc, "Table 5.2: Real-World Qneuro H100 Headset Performance Summary Matrix (57,250 In-Vivo Samples)", is_table=True)
     tbl_invivo = doc.add_table(rows=1, cols=9)
     format_table(tbl_invivo, invivo_widths, invivo_headers, invivo_data, align_cols=[WD_ALIGN_PARAGRAPH.LEFT, WD_ALIGN_PARAGRAPH.LEFT, WD_ALIGN_PARAGRAPH.LEFT] + [WD_ALIGN_PARAGRAPH.RIGHT] * 6)
-    add_caption(doc, "Table 5.2: Real-World Qneuro H100 Headset Performance Summary Matrix (57,250 In-Vivo Samples)", is_table=True)
 
     h2("5.9 Chapter Summary")
     p("This chapter presented the comprehensive in-vivo empirical validation of the neurorehabilitation platform on a healthy human participant using the wireless 8-channel Qneuro H100 NeuroState headset (57,250 samples over 229 seconds). The zero-phase signal conditioning engine successfully eliminated large DC offsets and powerline interference across active physiological channels (Channels 1–5). Calibrated differential EOG veto (+40 µV) and temporalis EMG (+10.5 dB) achieved 100% sensitivity with zero false alarms. Significant sensorimotor Mu/Beta desynchronization was recorded during hand clench and leg extension, enabling a Random Forest classifier to achieve 87.0% accuracy in 3-class movement intent decoding and 83.8% in 5-class lateralized decoding. Automated Signal Quality Monitoring correctly isolated noisy channels, and real-time arbitration executed without a single spurious trigger throughout the 229-second session.")
@@ -1182,9 +1188,9 @@ def create_report():
         ["Pipeline Latency", "< 100 ms", "9.81 ms", "9.81 ms", "Compliant"],
         ["UART Reliability", "100% CRC Pass", "100%", "100%", "Compliant"],
     ]
+    add_caption(doc, "Table 6.1: Comprehensive Verification Matrix Against Project Roadmap Targets", is_table=True)
     tbl_vm = doc.add_table(rows=1, cols=5)
     format_table(tbl_vm, vm_widths, vm_headers, vm_data, align_cols=[WD_ALIGN_PARAGRAPH.LEFT] + [WD_ALIGN_PARAGRAPH.RIGHT] * 3 + [WD_ALIGN_PARAGRAPH.CENTER])
-    add_caption(doc, "Table 6.1: Comprehensive Verification Matrix Against Project Roadmap Targets", is_table=True)
 
     h2("6.3 Current Technical Limitations")
     p("1. Synthetic Prototype Testbed: Physical testing was conducted on benchtop 3D-printed anthropomorphic hand and leg linkages; formal clinical trials on stroke patients require medical electrical isolation certification (IEC 60601-1).", space_after=3)
@@ -1269,9 +1275,9 @@ def create_report():
          "\u2022 Tier 2 Temporalis Jaw-Clench High-Gamma Detector\n\u2022 Tier 2 Periauricular EOG Double-Blink Veto Engine\n\u2022 Cognitive Alpha Workload LDA Classifier\n\u2022 Priority Arbitrator State Machine & Dwell Timer\n\u2022 Tier 3 UART Binary Packet Encoder & CRC-8\n\u2022 FreeRTOS ESP32-P4 Firmware State Machine",
          "\u2022 src/features/jaw_clench_detector.py\n\u2022 src/features/eog_blink_detector.py\n\u2022 src/classifiers/workload_lda.py\n\u2022 src/communication/arbitrator.py\n\u2022 src/communication/packet_encoder.py\n\u2022 src/communication/serial_manager.py\n\u2022 firmware/esp32_main/ (PWM & safety state)"],
     ]
+    add_caption(doc, "Table A.1: Detailed Individual Contribution Breakdown (Pardeep Singh vs Aastha Kumari)", is_table=True)
     tbl_ic = doc.add_table(rows=1, cols=3)
     format_table(tbl_ic, ic_widths, ic_headers, ic_data)
-    add_caption(doc, "Table A.1: Detailed Individual Contribution Breakdown", is_table=True)
 
     h2("A.2 Guide Feedback Incorporation Tracking Matrix")
     p("Table A.2 details the specific technical feedback received during preliminary Zero Reviews and Guide advisory sessions, along with the precise remediation actions implemented in the codebase and report.")
@@ -1286,9 +1292,9 @@ def create_report():
         ["Live Demo Review", "Show real human data, not just benchmark datasets. Validate on actual wireless headset.", "Conducted complete in-vivo validation campaign with Qneuro H100 headset. Recorded 57,250 samples from human participant. Generated 12 new analytical figures (Figs 5.5–5.16) and 4 acquisition screenshots (Figs 5.1–5.4). Achieved 87.0% motor intent accuracy.", "Chapter 5\nFigs 5.1–5.16\nTable 5.1–5.2"],
         ["Report Rubric Review", "Ensure comprehensive visual analysis, complete APA citations, and individual contributions.", "Generated 20 publication-grade 300-DPI analytical figures + 4 acquisition screenshots (24 figures total), compiled all references in APA 7th format, and created dedicated appendix mapping for rubric compliance.", "Chapters 1-6\nAppendix A\nAppendix B"],
     ]
+    add_caption(doc, "Table A.2: Review Committee and Guide Feedback Incorporation Tracking Matrix", is_table=True)
     tbl_gf = doc.add_table(rows=1, cols=4)
     format_table(tbl_gf, gf_widths, gf_headers, gf_data)
-    add_caption(doc, "Table A.2: Review Committee and Guide Feedback Incorporation Tracking Matrix", is_table=True)
     doc.add_page_break()
 
     # APPENDIX B: CORE PRODUCTION CODE IMPLEMENTATION
@@ -1406,9 +1412,9 @@ def create_report():
         ["Tier 4 Testbed", "3D-Printed PLA Hand & Leg Articulated Linkages", "In-house Ultimaker S5 Print", "1 set", "\u20b91,800", "Fabricated"],
         ["Total Investment", "Complete End-to-End BCI Cross-Limb Testbed", "All Tiers Consolidated", "--", "\u20b92,14,350", "Procured"],
     ]
+    add_caption(doc, "Table C.1: Consolidated Hardware Procurement Specification and Bill of Materials", is_table=True)
     tbl_bom = doc.add_table(rows=1, cols=6)
     format_table(tbl_bom, bom_widths, bom_headers, bom_data, align_cols=[WD_ALIGN_PARAGRAPH.LEFT, WD_ALIGN_PARAGRAPH.LEFT, WD_ALIGN_PARAGRAPH.LEFT, WD_ALIGN_PARAGRAPH.CENTER, WD_ALIGN_PARAGRAPH.RIGHT, WD_ALIGN_PARAGRAPH.CENTER])
-    add_caption(doc, "Table C.1: Consolidated Hardware Procurement Specification and Bill of Materials", is_table=True)
 
     h2("C.2 Microcontroller Hardware Pinout and Peripheral Mapping")
     pin_headers = ["ESP32-P4 Pin", "Peripheral Function", "Connected Hardware Component", "Signal Logic & Electrical Spec"]
@@ -1425,9 +1431,9 @@ def create_report():
         ["GPIO 34, 35", "Digital Input", "Leg Joint Limit Switches (Flex/Ext)", "Active-Low mechanical hard stops."],
         ["ADC1_CH0", "Analog In (ADC)", "FSR Force Sensor Fingertip 1", "0-3.3V, Overforce grip cutoff threshold."],
     ]
+    add_caption(doc, "Table C.2: ESP32-P4 MCU and PCA9685 Peripheral Hardware Pinout Mapping", is_table=True)
     tbl_pin = doc.add_table(rows=1, cols=4)
     format_table(tbl_pin, pin_widths, pin_headers, pin_data)
-    add_caption(doc, "Table C.2: ESP32-P4 MCU and PCA9685 Peripheral Hardware Pinout Mapping", is_table=True)
 
     print(f"\nSaving compiled document to {OUT_FILE}...")
     doc.save(OUT_FILE)
